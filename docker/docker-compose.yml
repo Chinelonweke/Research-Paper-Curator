@@ -1,4 +1,10 @@
-version: '3.8'
+# Docker Compose for Research Paper Curator (Groq version)
+# Remove "version" (it's obsolete in newer Docker versions)
+
+# 👇 Add this section to load your .env file automatically
+
+env_file:
+  - ../.env
 
 services:
   # ============================================
@@ -71,34 +77,7 @@ services:
     restart: unless-stopped
 
   # ============================================
-  # Ollama (LLM)
-  # ============================================
-  ollama:
-    image: ollama/ollama:latest
-    container_name: rag-ollama
-    volumes:
-      - ollama_data:/root/.ollama
-    ports:
-      - "11434:11434"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - rag-network
-    restart: unless-stopped
-    # For GPU support, uncomment:
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-
-  # ============================================
-  # API Service
+  # API Service (uses Groq instead of Ollama)
   # ============================================
   api:
     build:
@@ -115,7 +94,7 @@ services:
       - REDIS_PORT=6379
       - OPENSEARCH_HOST=opensearch
       - OPENSEARCH_PORT=9200
-      - OLLAMA_HOST=http://ollama:11434
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - API_HOST=0.0.0.0
       - API_PORT=8000
       - ENVIRONMENT=production
@@ -131,8 +110,6 @@ services:
         condition: service_healthy
       opensearch:
         condition: service_healthy
-      ollama:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -144,7 +121,7 @@ services:
     restart: unless-stopped
 
   # ============================================
-  # UI Service
+  # UI Service (Gradio)
   # ============================================
   ui:
     build:
@@ -259,6 +236,4 @@ volumes:
   redis_data:
     driver: local
   opensearch_data:
-    driver: local
-  ollama_data:
     driver: local

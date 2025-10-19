@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rag-config
+  namespace: rag-system
+data:
+  # Application Configuration
+  APP_NAME: "Research Paper Curator"
+  LOG_LEVEL: "INFO"
+  
+  # API Configuration
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  API_WORKERS: "8"
+  
+  # Database Configuration
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "research_papers"
+  DB_POOL_SIZE: "30"
+  DB_MAX_OVERFLOW: "20"
+  
+  # Redis Configuration
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  REDIS_CACHE_TTL: "3600"
+  
+  # OpenSearch Configuration
+  OPENSEARCH_HOST: "opensearch-service"
+  OPENSEARCH_PORT: "9200"
+  OPENSEARCH_INDEX: "papers"
+  
+  # Ollama Configuration
+  OLLAMA_HOST: "http://ollama-service:11434"
+  OLLAMA_MODEL: "llama2"
+  
+  # Embedding Configuration
+  EMBEDDING_MODEL: "all-MiniLM-L6-v2"
+  EMBEDDING_DIMENSION: "384"
+  
+  # Search Configuration
+  SEARCH_TOP_K: "10"
+  SEARCH_ALPHA: "0.5"
+  
+  # Chunking Configuration
+  CHUNK_SIZE: "500"
+  CHUNK_OVERLAP: "50"
+  MAX_CHUNKS_PER_PAPER: "50"
+  
+  # Rate Limiting
+  RATE_LIMIT_PER_MINUTE: "100"
+  RATE_LIMIT_BURST: "150"
+  
+  # Sharding
+  SHARD_COUNT: "4"

@@ -1,0 +1,29 @@
+# Development override for docker-compose
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: builder
+    volumes:
+      - ..:/app
+      - /app/.venv
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - API_RELOAD=true
+    command: python -m src.api.main
+
+  ui:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: builder
+    volumes:
+      - ..:/app
+      - /app/.venv
+    environment:
+      - UI_SHARE=true
+    command: python -m src.ui.gradio_interface

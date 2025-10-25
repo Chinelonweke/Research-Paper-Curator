@@ -1,0 +1,54 @@
+﻿# =============================================================================
+# API - FIXED (Uses pytorch devel image)
+# =============================================================================
+
+FROM pytorch/pytorch:2.1.2-cuda11.8-cudnn8-devel as builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl git libpq-dev gcc g++ ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --upgrade pip
+
+RUN pip install --no-cache-dir --user \
+    fastapi uvicorn[standard] pydantic pydantic-settings python-multipart \
+    "sqlalchemy<2.0.0" psycopg2-binary alembic \
+    sentence-transformers faiss-cpu \
+    openai groq langchain langchain-community \
+    opensearch-py gradio pypdf beautifulsoup4 \
+    redis requests httpx python-dotenv loguru \
+    tqdm psutil pandas numpy
+
+FROM pytorch/pytorch:2.1.2-cuda11.8-cudnn8-devel
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH=/root/.local/bin:
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -u 1000 -s /bin/bash appuser && \
+    mkdir -p /app && chown -R appuser:appuser /app
+
+WORKDIR /app
+
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+
+ENV PATH=/home/appuser/.local/bin:
+
+COPY --chown=appuser:appuser src/ ./src/
+
+RUN mkdir -p logs data/cache && chown -R appuser:appuser logs data
+
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

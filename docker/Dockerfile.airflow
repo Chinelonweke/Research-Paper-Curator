@@ -1,0 +1,33 @@
+# =============================================================================
+# AIRFLOW SERVICE - OFFICIAL AIRFLOW BASE IMAGE
+# Airflow 2.8.1 pre-installed = no dependency conflicts!
+# =============================================================================
+
+FROM apache/airflow:2.8.1-python3.11
+
+# Switch to root for system installations
+USER root
+
+# Install system dependencies if needed
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to airflow user
+USER airflow
+
+WORKDIR /opt/airflow
+
+# Copy requirements
+COPY requirements-airflow.txt .
+
+# Install additional packages
+RUN pip install --no-cache-dir --user -r requirements-airflow.txt
+
+# Copy DAGs and plugins
+COPY --chown=airflow:root airflow/dags/ ./dags/
+#COPY --chown=airflow:root airflow/plugins/ ./plugins/
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1

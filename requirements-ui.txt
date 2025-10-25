@@ -1,0 +1,19 @@
+﻿# =============================================================================
+# UI SERVICE REQUIREMENTS - MINIMAL (PRODUCTION STANDARD)
+# UI only needs to display data from API
+# =============================================================================
+
+# UI Framework
+gradio~=4.16.0
+
+# To talk to API
+requests>=2.31.0
+httpx>=0.26.0
+
+# For configuration
+python-dotenv>=1.0.0
+
+# For logging
+loguru>=0.7.0
+
+# That's it! Everything else happens in API!

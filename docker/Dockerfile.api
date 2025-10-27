@@ -1,18 +1,41 @@
-﻿# =============================================================================
-# API - FIXED (Uses pytorch devel image)
+# =============================================================================
+# API - Using Ubuntu base and UV for PyTorch and dependencies
 # =============================================================================
 
-FROM pytorch/pytorch:2.1.2-cuda11.8-cudnn8-devel as builder
+# Stage 1: Builder
+FROM ubuntu:22.04 as builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install core build tools, Python, pip, and uv
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl git libpq-dev ca-certificates python3 python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv globally or make it available for use
+# Using pip to install uv, then removing pip-related cache
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir uv && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/pip
+
+# Create a virtual environment with uv
+ENV VIRTUAL_ENV=/opt/venv
+# Ensure the virtual environment's bin is in PATH
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN python3 -m uv venv /opt/venv
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential curl git libpq-dev gcc g++ ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# Install PyTorch with CUDA 11.8 using uv pip install
+# Note: Ensure the PyTorch version and CUDA version match your requirements.
+# Calling uv directly, as it is installed globally and manages the venv
+RUN uv pip install --no-cache-dir \
+    torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 \
+    --index-url https://download.pytorch.org/whl/cu118
 
-RUN pip install --no-cache-dir --upgrade pip
-
-RUN pip install --no-cache-dir --user \
+# Install other Python dependencies using uv pip install
+RUN uv pip install --no-cache-dir \
     fastapi uvicorn[standard] pydantic pydantic-settings python-multipart \
     "sqlalchemy<2.0.0" psycopg2-binary alembic \
     sentence-transformers faiss-cpu \
@@ -21,24 +44,30 @@ RUN pip install --no-cache-dir --user \
     redis requests httpx python-dotenv loguru \
     tqdm psutil pandas numpy
 
-FROM pytorch/pytorch:2.1.2-cuda11.8-cudnn8-devel
+# Stage 2: Runtime
+FROM ubuntu:22.04
 
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PATH=/root/.local/bin:
+ENV DEBIAN_FRONTEND=noninteractive
 
+# Install minimal runtime dependencies, including python3 to satisfy the venv symlink
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates libpq5 \
+    curl ca-certificates libpq5 python3 \
     && rm -rf /var/lib/apt/lists/*
 
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Create a non-root user
 RUN useradd -m -u 1000 -s /bin/bash appuser && \
     mkdir -p /app && chown -R appuser:appuser /app
 
 WORKDIR /app
 
-COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+# Copy the virtual environment from the builder stage
+COPY --from=builder /opt/venv /opt/venv
 
-ENV PATH=/home/appuser/.local/bin:
+# Ensure the virtual environment's bin is in PATH
+ENV PATH="/opt/venv/bin:$PATH"
 
 COPY --chown=appuser:appuser src/ ./src/
 
@@ -51,4 +80,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python3", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

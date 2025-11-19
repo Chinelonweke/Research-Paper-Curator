@@ -39,13 +39,7 @@ class SearchResponse(BaseModel):
     source: str
     cached: bool = False
 
-@router.get("/")
-async def root():
-    return {
-        "message": "Research Paper Curator API",
-        "version": "2.0.0",
-        "features": ["authentication", "tracking", "monitoring", "ask"]
-    }
+
 
 @router.get("/health")
 async def health():

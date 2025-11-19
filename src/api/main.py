@@ -19,20 +19,29 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Routers
-app.include_router(auth_routes.router)
-app.include_router(routes.router)
-
+# Root endpoint
 @app.get("/")
 async def root():
     return {
         "message": "Research Paper Curator API v2.0",
-        "features": ["authentication", "tracking", "analytics", "monitoring"],
-        "docs": "/docs"
+        "status": "running",
+        "docs": "/docs",
+        "api": "/api"
     }
+
+@app.get("/health")
+async def health():
+    return {
+        "status": "healthy",
+        "version": "2.0.0"
+    }
+
+# Include routers with /api prefix
+app.include_router(auth_routes.router)
+app.include_router(routes.router, prefix="/api")

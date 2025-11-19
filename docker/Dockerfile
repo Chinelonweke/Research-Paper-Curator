@@ -8,20 +8,21 @@ RUN apt-get update && apt-get install -y \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
+# Copy requirements - CHECK IF THIS FILE EXISTS!
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy source code
 COPY src/ ./src/
+COPY .env.example .env
 
 # Create audio directory
 RUN mkdir -p /tmp/audio && chmod 777 /tmp/audio
 
 # Expose port
-EXPOSE 8000
+EXPOSE $PORT
 
-# Run application
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application
+CMD uvicorn src.api.main:app --host 0.0.0.0 --port $PORT

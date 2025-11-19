@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: rag-system
+
+commonLabels:
+  environment: production
+
+resources:
+- ../base/namespace.yaml
+- ../base/configmap.yaml
+- ../base/secret.yaml
+- ../base/deployment-api.yaml
+- ../base/deployment-postgres.yaml
+- ../base/deployment-redis.yaml
+- ../base/deployment-opensearch.yaml
+- ../base/deployment-ollama.yaml
+- ../base/service.yaml
+- ../base/ingress.yaml
+- ../base/hpa.yaml
+
+patches:
+- path: patch-production.yaml

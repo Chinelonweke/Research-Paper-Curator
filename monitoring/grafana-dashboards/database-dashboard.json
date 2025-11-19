@@ -1,0 +1,158 @@
+{
+  "dashboard": {
+    "title": "RAG System - Database Metrics",
+    "uid": "rag-database-metrics",
+    "tags": ["rag-system", "database", "postgres"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "30s",
+    
+    "panels": [
+      {
+        "id": 1,
+        "title": "Database Connections",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "pg_stat_database_numbackends{datname=\"research_papers\"}",
+            "legendFormat": "Active Connections",
+            "refId": "A"
+          },
+          {
+            "expr": "pg_settings_max_connections",
+            "legendFormat": "Max Connections",
+            "refId": "B"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"type": "gt", "params": [80]},
+              "query": {"params": ["A", "5m", "now"]}
+            }
+          ],
+          "name": "High Database Connections"
+        }
+      },
+      
+      {
+        "id": 2,
+        "title": "Query Execution Time (P95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(pg_stat_statements_mean_time_seconds_bucket[5m]))",
+            "legendFormat": "P95 Query Time",
+            "refId": "A"
+          }
+        ]
+      },
+      
+      {
+        "id": 3,
+        "title": "Database Size",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "pg_database_size_bytes{datname=\"research_papers\"}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "unit": "bytes"
+        }
+      },
+      
+      {
+        "id": 4,
+        "title": "Transactions Per Second",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 6, "y": 8},
+        "targets": [
+          {
+            "expr": "rate(pg_stat_database_xact_commit{datname=\"research_papers\"}[1m]) + rate(pg_stat_database_xact_rollback{datname=\"research_papers\"}[1m])",
+            "refId": "A"
+          }
+        ]
+      },
+      
+      {
+        "id": 5,
+        "title": "Cache Hit Ratio",
+        "type": "gauge",
+        "gridPos": {"h": 6, "w": 6, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "(sum(pg_stat_database_blks_hit{datname=\"research_papers\"}) / (sum(pg_stat_database_blks_hit{datname=\"research_papers\"}) + sum(pg_stat_database_blks_read{datname=\"research_papers\"}))) * 100",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "minValue": 0,
+          "maxValue": 100,
+          "thresholds": [
+            {"value": 0, "color": "red"},
+            {"value": 90, "color": "yellow"},
+            {"value": 95, "color": "green"}
+          ]
+        }
+      },
+      
+      {
+        "id": 6,
+        "title": "Slow Queries (> 1s)",
+        "type": "table",
+        "gridPos": {"h": 10, "w": 24, "x": 0, "y": 14},
+        "targets": [
+          {
+            "expr": "topk(10, pg_stat_statements_mean_time_seconds > 1)",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ]
+      },
+      
+      {
+        "id": 7,
+        "title": "Deadlocks",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "rate(pg_stat_database_deadlocks{datname=\"research_papers\"}[5m])",
+            "legendFormat": "Deadlocks/s",
+            "refId": "A"
+          }
+        ]
+      },
+      
+      {
+        "id": 8,
+        "title": "Replication Lag",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "targets": [
+          {
+            "expr": "pg_replication_lag_seconds",
+            "legendFormat": "Replica {{instance}}",
+            "refId": "A"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"type": "gt", "params": [10]},
+              "query": {"params": ["A", "5m", "now"]}
+            }
+          ],
+          "name": "High Replication Lag"
+        }
+      }
+    ]
+  }
+}

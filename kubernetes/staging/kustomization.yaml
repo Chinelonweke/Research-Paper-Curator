@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: rag-system-staging
+
+namePrefix: staging-
+
+commonLabels:
+  environment: staging
+
+resources:
+- ../base/namespace.yaml
+- ../base/configmap.yaml
+- ../base/secret.yaml
+- ../base/deployment-api.yaml
+- ../base/deployment-postgres.yaml
+- ../base/deployment-redis.yaml
+- ../base/deployment-opensearch.yaml
+- ../base/service.yaml
+- ../base/ingress.yaml
+
+patches:
+- path: patch-staging.yaml

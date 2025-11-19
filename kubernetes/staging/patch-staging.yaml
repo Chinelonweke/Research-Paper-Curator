@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-api
+  namespace: rag-system-staging
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: api
+        image: ghcr.io/yourusername/rag-system:staging-latest
+        env:
+        - name: ENVIRONMENT
+          value: "staging"
+        - name: DEBUG
+          value: "true"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

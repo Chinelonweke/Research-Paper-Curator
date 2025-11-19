@@ -1,0 +1,66 @@
+﻿FROM ubuntu:22.04 as builder
+
+WORKDIR /app
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl git libpq-dev ca-certificates python3 python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir uv && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/pip
+
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN python3 -m uv venv /opt/venv
+
+WORKDIR /app
+
+RUN uv pip install --no-cache-dir \
+    torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 \
+    --index-url https://download.pytorch.org/whl/cu118
+
+RUN uv pip install --no-cache-dir \
+    fastapi uvicorn[standard] pydantic pydantic-settings python-multipart \
+    "sqlalchemy<2.0.0" psycopg2-binary alembic \
+    sentence-transformers faiss-cpu \
+    openai groq langchain langchain-community \
+    opensearch-py gradio pypdf beautifulsoup4 \
+    redis requests httpx python-dotenv loguru \
+    tqdm psutil pandas numpy
+
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates libpq5 python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+RUN useradd -m -u 1000 -s /bin/bash appuser && \
+    mkdir -p /app && chown -R appuser:appuser /app
+
+WORKDIR /app
+
+COPY --from=builder /opt/venv /opt/venv
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY --chown=appuser:appuser src/ ./src/
+
+RUN mkdir -p logs data/cache && chown -R appuser:appuser logs data
+
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+CMD ["python3", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

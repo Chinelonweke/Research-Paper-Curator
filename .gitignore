@@ -1,0 +1,30 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.Python
+venv/
+ENV/
+*.egg-info/
+
+# Environment - NEVER COMMIT
+.env
+.env.*
+.env.backup
+environments/
+
+# Logs
+*.log
+airflow/logs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.pem
+*.key
+secrets/

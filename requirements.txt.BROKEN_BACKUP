@@ -1,0 +1,196 @@
+# ============================================
+# PROJECT: Research Paper Curator
+# VERSION: 2.0.0 (Enterprise Edition)
+# UPDATED: 2025-10-14
+# ============================================
+
+# ============================================
+# CORE API & WEB FRAMEWORK
+# ============================================
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-multipart==0.0.6
+starlette==0.35.1
+
+# ============================================
+# USER INTERFACE
+# ============================================
+gradio==4.16.0
+
+# ============================================
+# DATABASE
+# ============================================
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+asyncpg==0.29.0
+
+# ============================================
+# VECTOR STORE & SEARCH
+# ============================================
+opensearch-py==2.4.2
+sentence-transformers==2.2.2
+torch==2.1.2
+torchvision==0.16.2
+torchaudio==2.1.2
+rank-bm25==0.2.2
+faiss-cpu==1.7.4
+
+# ============================================
+# LLM INTEGRATION
+# ============================================
+
+langchain==0.1.4
+langchain-community==0.0.16
+openai==1.10.0
+groq==0.11.0 
+
+# ============================================
+# DATA INGESTION
+# ============================================
+arxiv==2.1.0
+PyPDF2==3.0.1
+beautifulsoup4==4.12.3
+lxml==5.1.0
+pypdf==4.0.1
+pdfplumber==0.10.3
+
+# ============================================
+# CACHING
+# ============================================
+redis==5.0.1
+hiredis==2.3.2
+
+# ============================================
+# MESSAGE QUEUES
+# ============================================
+celery==5.3.4
+kombu==5.3.5
+flower==2.0.1
+pika==1.3.2
+kafka-python==2.0.2
+
+# ============================================
+# WORKFLOW AUTOMATION
+# ============================================
+apache-airflow==2.8.1
+apache-airflow-providers-postgres==5.10.0
+apache-airflow-providers-redis==3.5.0
+apache-airflow-providers-celery==3.5.1
+
+# ============================================
+# AUDIO PROCESSING ⭐ NEW
+# ============================================
+# Speech Recognition
+openai-whisper==20231117
+soundfile==0.12.1
+librosa==0.10.1
+webrtcvad==2.0.10
+pyaudio==0.2.14
+pydub==0.25.1
+
+# Text-to-Speech
+TTS==0.22.0
+gTTS==2.5.0
+pyttsx3==2.90
+
+# Audio Utilities
+scipy==1.11.4
+numpy==1.26.3
+wave==0.0.2
+
+# ============================================
+# MONITORING & OBSERVABILITY
+# ============================================
+langfuse==2.17.0
+prometheus-client==0.19.0
+opentelemetry-api==1.22.0
+opentelemetry-sdk==1.22.0
+opentelemetry-instrumentation-fastapi==0.43b0
+opentelemetry-instrumentation-sqlalchemy==0.43b0
+opentelemetry-instrumentation-redis==0.43b0
+opentelemetry-instrumentation-requests==0.43b0
+opentelemetry-exporter-jaeger==1.21.0
+sentry-sdk[fastapi]==1.40.0
+opentelemetry-exporter-jaeger==1.21.0
+
+
+# ============================================
+# DISTRIBUTED TRACING
+# ============================================
+jaeger-client==4.8.0
+py-zipkin==1.2.1
+
+# ============================================
+# UTILITIES
+# ============================================
+python-dotenv==1.0.0
+requests==2.31.0
+httpx==0.26.0
+pydantic-settings==2.1.0
+loguru==0.7.2
+tenacity==8.2.3
+tqdm==4.66.1
+python-dateutil==2.8.2
+pytz==2023.3
+
+# ============================================
+# SECURITY
+# ============================================
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+cryptography==42.0.2
+pyjwt==2.8.0
+
+# ============================================
+# DATA PROCESSING
+# ============================================
+numpy==1.26.3
+pandas==2.2.0
+nltk==3.8.1
+spacy==3.7.2
+
+# ============================================
+# HTTP & NETWORKING
+# ============================================
+aiohttp==3.9.3
+aiofiles==23.2.1
+websockets==12.0
+
+# ============================================
+# PERFORMANCE OPTIMIZATION
+# ============================================
+gunicorn==21.2.0
+gevent==23.9.1
+ujson==5.9.0
+orjson==3.9.13
+
+# ============================================
+# CDN & EDGE COMPUTING
+# ============================================
+cloudflare==2.19.4
+
+# ============================================
+# RATE LIMITING
+# ============================================
+slowapi==0.1.9
+limits==3.7.0
+
+# ============================================
+# VALIDATION
+# ============================================
+email-validator==2.1.0
+phonenumbers==8.13.27
+
+# ============================================
+# MISC
+# ============================================
+python-magic==0.4.27
+pillow==10.2.0
+markdown==3.5.2
+
+transformers==4.30.0
+huggingface-hub==0.16.4

@@ -1,0 +1,27 @@
+# =============================================================================
+# AIRFLOW SERVICE REQUIREMENTS - PRODUCTION BEST PRACTICE
+# Airflow already in base image - only extras here
+# =============================================================================
+
+# ============================================
+# CRITICAL PACKAGES - Strict pinning (~=)
+# ============================================
+
+# Providers (versions must match Airflow version)
+apache-airflow-providers-postgres~=5.10.0
+
+# ============================================
+# STABLE PACKAGES - Flexible (>=)
+# ============================================
+
+# For DAG development
+requests>=2.31.0
+python-dotenv>=1.0.0
+pandas>=2.0.0
+
+# API clients for DAGs
+openai>=1.10.0
+groq>=0.11.0
+
+# Utilities
+loguru>=0.7.0

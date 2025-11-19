@@ -1,0 +1,13 @@
+-r requirements.txt
+
+# Additional packages for staging environment
+
+
+# Enhanced monitoring
+datadog==0.48.0
+
+# Performance profiling
+pyinstrument==4.6.1
+
+# Feature flags
+python-decouple==3.8

@@ -1,0 +1,6 @@
+﻿"""
+Core module initialization
+"""
+from src.core.config import settings
+
+__all__ = ["settings"]

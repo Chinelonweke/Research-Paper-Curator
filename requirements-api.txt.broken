@@ -1,0 +1,73 @@
+# =============================================================================
+# API SERVICE REQUIREMENTS - PRODUCTION BEST PRACTICE
+# PyTorch already in base image - don't include it here!
+# =============================================================================
+# Version pinning strategy:
+#   ~= (compatible release) for critical packages
+#   >= (minimum version) for stable packages
+# =============================================================================
+
+# ============================================
+# CRITICAL PACKAGES - Strict pinning (~=)
+# ============================================
+
+# Core API Framework (critical - your app depends on this)
+fastapi~=0.109.0
+uvicorn~=0.27.0
+pydantic~=2.5.0
+pydantic-settings~=2.1.0
+python-multipart~=0.0.6
+starlette~=0.35.0
+
+# Database (critical - data integrity)
+sqlalchemy~=1.4.50
+psycopg2-binary~=2.9.0
+alembic~=1.13.1
+
+# UI Framework (if used in API)
+gradio~=4.16.0
+
+# ============================================
+# STABLE PACKAGES - Flexible (>=)
+# ============================================
+
+# Search & Embeddings (stable APIs, torch from base image)
+opensearch-py>=2.4.0
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.0
+
+# LLM APIs (stable, improve over time)
+openai>=1.10.0
+groq>=0.11.0
+langchain>=0.1.0
+langchain-community>=0.0.16
+
+# PDF Processing (stable libraries)
+pypdf>=4.0.0
+beautifulsoup4>=4.12.0
+lxml>=5.1.0
+
+# Cache (stable API)
+redis>=5.0.0
+hiredis>=2.3.2
+
+# HTTP & Utilities (stable, mature)
+requests>=2.31.0
+httpx>=0.26.0
+python-dotenv>=1.0.0
+loguru>=0.7.0
+tqdm>=4.66.0
+psutil>=5.9.0
+tenacity>=8.2.3
+
+# Data Processing (stable, backwards compatible)
+pandas>=2.0.0
+numpy>=1.26.0
+
+# NLP (stable)
+nltk>=3.8.1
+
+# Async (stable)
+aiohttp>=3.9.3
+aiofiles>=23.2.1
+websockets>=12.0

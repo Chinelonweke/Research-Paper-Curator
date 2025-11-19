@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-api
+  namespace: rag-system
+spec:
+  replicas: 5
+  template:
+    spec:
+      containers:
+      - name: api
+        image: ghcr.io/yourusername/rag-system:latest
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: DEBUG
+          value: "false"

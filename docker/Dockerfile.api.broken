@@ -1,0 +1,79 @@
+# =============================================================================
+# API SERVICE - PYTORCH BASE IMAGE
+# PyTorch 2.1.2 pre-installed = no 900MB download!
+# =============================================================================
+
+# ============================================
+# Stage 1: Builder
+# ============================================
+FROM pytorch/pytorch:2.1.2-cuda11.8-cudnn8-runtime as builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    libpq-dev \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements-api.txt .
+
+# Install dependencies to user directory
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --user -r requirements-api.txt
+
+# ============================================
+# Stage 2: Runtime
+# ============================================
+FROM pytorch/pytorch:2.1.2-cuda11.8-cudnn8-runtime
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH=/root/.local/bin:$PATH \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user for security
+RUN useradd -m -u 1000 -s /bin/bash appuser && \
+    mkdir -p /app && \
+    chown -R appuser:appuser /app
+
+WORKDIR /app
+
+# Copy dependencies from builder
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+
+# Update PATH for non-root user
+ENV PATH=/home/appuser/.local/bin:$PATH
+
+# Copy application code
+COPY --chown=appuser:appuser src/ ./src/
+
+# Create necessary directories
+RUN mkdir -p logs data/cache && \
+    chown -R appuser:appuser logs data
+
+# Switch to non-root user
+USER appuser
+
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run API
+CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,19 @@
+﻿{
+  "dashboard": {
+    "title": "API Monitoring",
+    "panels": [
+      {
+        "title": "Request Rate",
+        "targets": [{"expr": "rate(http_requests_total[5m])"}]
+      },
+      {
+        "title": "Error Rate",
+        "targets": [{"expr": "rate(http_errors_total[5m])"}]
+      },
+      {
+        "title": "Response Time",
+        "targets": [{"expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"}]
+      }
+    ]
+  }
+}

@@ -1,0 +1,152 @@
+# AWS CloudFront Distribution Configuration
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFront Distribution for RAG System
+
+Resources:
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: RAG System CDN
+        DefaultRootObject: index.html
+        
+        # Origins (your API servers)
+        Origins:
+          - Id: ApiOrigin
+            DomainName: api.yourdomain.com
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+              OriginReadTimeout: 30
+              OriginKeepaliveTimeout: 5
+          
+          - Id: StaticOrigin
+            DomainName: static.yourdomain.com
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOAI}'
+        
+        # Cache behaviors
+        DefaultCacheBehavior:
+          TargetOriginId: ApiOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+            Headers:
+              - Authorization
+              - Accept
+              - Accept-Language
+          MinTTL: 0
+          DefaultTTL: 300
+          MaxTTL: 3600
+        
+        CacheBehaviors:
+          # Cache static assets aggressively
+          - PathPattern: /static/*
+            TargetOriginId: StaticOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+            MinTTL: 86400
+            DefaultTTL: 86400
+            MaxTTL: 31536000
+          
+          # Cache paper list with shorter TTL
+          - PathPattern: /api/v1/papers*
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            ForwardedValues:
+              QueryString: true
+              Cookies:
+                Forward: none
+            MinTTL: 60
+            DefaultTTL: 300
+            MaxTTL: 3600
+          
+          # Don't cache search/ask endpoints
+          - PathPattern: /api/v1/ask*
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            ForwardedValues:
+              QueryString: true
+              Cookies:
+                Forward: all
+              Headers:
+                - '*'
+            MinTTL: 0
+            DefaultTTL: 0
+            MaxTTL: 0
+        
+        # Price class (optimize cost vs performance)
+        PriceClass: PriceClass_All  # Use all edge locations
+        
+        # Geographic restrictions
+        Restrictions:
+          GeoRestriction:
+            RestrictionType: none
+        
+        # SSL/TLS certificate
+        ViewerCertificate:
+          AcmCertificateArn: !Ref Certificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        
+        # Logging
+        Logging:
+          Bucket: !GetAtt LoggingBucket.DomainName
+          Prefix: cloudfront/
+          IncludeCookies: false
+        
+        # Custom error responses
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 404
+            ResponsePagePath: /404.html
+            ErrorCachingMinTTL: 300
+          - ErrorCode: 500
+            ResponseCode: 500
+            ResponsePagePath: /500.html
+            ErrorCachingMinTTL: 0
+  
+  # Origin Access Identity for S3
+  CloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: OAI for RAG System
+  
+  # Logging bucket
+  LoggingBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-cloudfront-logs'
+      AccessControl: LogDeliveryWrite
+
+Outputs:
+  DistributionId:
+    Value: !Ref CloudFrontDistribution
+  DistributionDomainName:
+    Value: !GetAtt CloudFrontDistribution.DomainName

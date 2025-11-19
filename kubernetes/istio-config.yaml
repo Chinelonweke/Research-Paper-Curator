@@ -1,0 +1,111 @@
+# Istio Service Mesh Configuration
+# Provides traffic management, security, and observability
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: rag-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: rag-tls-cert
+    hosts:
+    - "api.yourdomain.com"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: rag-api
+spec:
+  hosts:
+  - "api.yourdomain.com"
+  gateways:
+  - rag-gateway
+  http:
+  # Retry policy
+  - match:
+    - uri:
+        prefix: /api/v1/
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: 5xx,connect-failure,refused-stream
+    timeout: 30s
+    route:
+    - destination:
+        host: rag-api-service
+        port:
+          number: 8000
+      weight: 90
+    - destination:
+        host: rag-api-service-canary
+        port:
+          number: 8000
+      weight: 10  # Canary deployment
+  
+  # Fault injection (for testing)
+  fault:
+    delay:
+      percentage:
+        value: 0.1
+      fixedDelay: 5s
+    abort:
+      percentage:
+        value: 0.01
+      httpStatus: 500
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: rag-api-circuit-breaker
+spec:
+  host: rag-api-service
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 10
+    loadBalancer:
+      simple: LEAST_REQUEST
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 40
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: rag-mtls
+spec:
+  mtls:
+    mode: STRICT
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: rag-authz
+spec:
+  selector:
+    matchLabels:
+      app: rag-api
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/frontend"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/api/v1/*"]

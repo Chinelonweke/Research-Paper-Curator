@@ -18,6 +18,20 @@ from src.services.auth import get_current_user, log_search
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+@router.get("/")
+async def api_root():
+    return {
+        "message": "Research Paper Curator API",
+        "version": "2.0.0",
+        "endpoints": {
+            "papers": "/api/papers",
+            "search": "/api/papers/search",
+            "ask": "/api/ask",
+            "stats": "/api/papers/stats",
+            "health": "/api/health"
+        }
+    }
+
 class SearchRequest(BaseModel):
     query: str
     limit: int = 10
@@ -249,3 +263,4 @@ async def get_stats(db: Session = Depends(get_db)):
         }
     except:
         return {"total_papers": 0, "status": "error"}
+

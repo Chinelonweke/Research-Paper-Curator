@@ -9,8 +9,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
     
     # Database
-    database_url: str = os.getenv(
-        "DATABASE_URL", 
+    database_url: str = os.getenv( 
         "postgresql://neondb_owner:npg_zqua53pIJGUP@ep-frosty-queen-ahy6nn7k-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
     )
     
@@ -67,4 +66,5 @@ settings = Settings()
 print(f"✓ Configuration loaded: {settings.environment}")
 print(f"✓ Database: NeonDB")
 print(f"✓ Log level: {settings.log_level}")
+
 

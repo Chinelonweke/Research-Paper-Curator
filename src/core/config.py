@@ -68,3 +68,4 @@ print(f"✓ Database: NeonDB")
 print(f"✓ Log level: {settings.log_level}")
 
 
+

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     # Database
     database_url: str = os.getenv(
         "DATABASE_URL", 
-        "postgresql://neondb_owner:npg_0DV1GEHydajt@ep-frosty-queen-ahy6nn7k-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+        "postgresql://neondb_owner:npg_zqua53pIJGUP@ep-frosty-queen-ahy6nn7k-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
     )
     
     # Redis

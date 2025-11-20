@@ -37,3 +37,5 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+HEROKU_DEPLOYMENT.txt

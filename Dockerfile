@@ -1,4 +1,4 @@
-﻿FROM python:3.10-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
@@ -18,8 +18,8 @@ COPY src/ ./src/
 # Create audio directory
 RUN mkdir -p /tmp/audio && chmod 777 /tmp/audio
 
-# Expose port
+# Expose port (optional, doesn't actually do anything on Heroku)
 EXPOSE $PORT
 
-# Run application
-CMD uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+# Run application - USE /bin/sh -c TO EXPAND $PORT
+CMD /bin/sh -c "uvicorn src.api.main:app --host 0.0.0.0 --port $PORT"

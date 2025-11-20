@@ -67,3 +67,4 @@ settings = Settings()
 print(f"✓ Configuration loaded: {settings.environment}")
 print(f"✓ Database: NeonDB")
 print(f"✓ Log level: {settings.log_level}")
+

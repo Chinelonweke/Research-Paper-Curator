@@ -11,7 +11,6 @@ import os
 logger = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
     "postgresql://neondb_owner:npg_zqua53pIJGUP@ep-frosty-queen-ahy6nn7k-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 )
 

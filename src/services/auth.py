@@ -93,3 +93,4 @@ def log_search(db: Session, user_id: int, query: str, filters: dict = None):
     except Exception as e:
         print(f"Error logging search: {e}")
         db.rollback()
+

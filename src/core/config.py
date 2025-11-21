@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379")
     # redis_port moved to redis_url
-    redis_enabled: bool = False
+    redis_enabled: bool = True
     
     # OpenSearch
     opensearch_host: str = "opensearch"
@@ -66,6 +66,8 @@ settings = Settings()
 print(f"✓ Configuration loaded: {settings.environment}")
 print(f"✓ Database: NeonDB")
 print(f"✓ Log level: {settings.log_level}")
+
+
 
 
 

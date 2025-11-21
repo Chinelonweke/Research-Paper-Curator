@@ -84,3 +84,5 @@ def log_search(db: Session, query: str, results_count: int, search_type: str,
     except Exception as e:
         print(f"Failed to log search: {e}")
         db.rollback()
+
+

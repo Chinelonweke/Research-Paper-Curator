@@ -19,3 +19,4 @@ email-validator==2.1.0
 pyttsx3==2.90
 SpeechRecognition==3.10.0
 gTTS==2.5.0
+bcrypt==4.0.1

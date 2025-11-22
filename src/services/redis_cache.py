@@ -1,78 +1,82 @@
-﻿"""
-Redis Cache Service
-"""
+﻿"""Redis caching service for API responses."""
+import os
 import redis
 import json
-import logging
-from typing import Optional, Any
-import os
+from typing import Any, Optional
+from src.core.logging_config import app_logger as logger
 
-logger = logging.getLogger(__name__)
 
 class RedisCache:
-    """Redis caching service"""
-    
+    """Redis cache manager."""
+
     def __init__(self):
-        redis_host = os.getenv("REDIS_HOST", "redis")
-        redis_port = int(os.getenv("REDIS_PORT", 6379))
-        
+        # Use REDIS_URL from Heroku
+        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+
         try:
-            self.client = redis.Redis(
-                host=redis_host,
-                port=redis_port,
-                db=0,
-                decode_responses=True,
-                socket_connect_timeout=5
-            )
+            # Handle both redis:// and rediss:// (SSL)
+            if redis_url.startswith("rediss://"):
+                # SSL connection - disable certificate verification for Heroku Redis
+                self.client = redis.from_url(
+                    redis_url,
+                    decode_responses=True,
+                    socket_connect_timeout=5,
+                    ssl_cert_reqs=None  # Disable SSL certificate verification
+                )
+            else:
+                # Non-SSL connection
+                self.client = redis.from_url(
+                    redis_url,
+                    decode_responses=True,
+                    socket_connect_timeout=5
+                )
+            
             self.client.ping()
-            logger.info(f"✅ Redis connected: {redis_host}:{redis_port}")
+            log_url = redis_url.split('@')[-1] if '@' in redis_url else redis_url
+            logger.info(f"✅ Redis connected: {log_url}")
         except Exception as e:
             logger.error(f"❌ Redis connection failed: {e}")
             self.client = None
-    
+
     def get(self, key: str) -> Optional[Any]:
-        """Get value from cache"""
+        """Get value from cache."""
         if not self.client:
             return None
-        
         try:
             value = self.client.get(key)
             if value:
                 return json.loads(value)
             return None
         except Exception as e:
-            logger.error(f"Redis get error: {e}")
+            logger.error(f"Redis GET error: {e}")
             return None
-    
-    def set(self, key: str, value: Any, ttl: int = 3600):
-        """Set value in cache with TTL (default 1 hour)"""
+
+    def set(self, key: str, value: Any, ttl: int = 3600) -> bool:
+        """Set value in cache with TTL."""
         if not self.client:
             return False
-        
         try:
             self.client.setex(key, ttl, json.dumps(value))
             return True
         except Exception as e:
-            logger.error(f"Redis set error: {e}")
+            logger.error(f"Redis SET error: {e}")
             return False
-    
-    def delete(self, key: str):
-        """Delete key from cache"""
+
+    def delete(self, key: str) -> bool:
+        """Delete key from cache."""
         if not self.client:
             return False
-        
         try:
             self.client.delete(key)
             return True
         except Exception as e:
-            logger.error(f"Redis delete error: {e}")
+            logger.error(f"Redis DELETE error: {e}")
             return False
-    
-    def clear_pattern(self, pattern: str):
-        """Clear all keys matching pattern"""
+
+    def clear_pattern(self, pattern: str) -> int:
+        """Clear all keys matching pattern."""
         if not self.client:
             return 0
-        
         try:
             keys = self.client.keys(pattern)
             if keys:
@@ -82,5 +86,16 @@ class RedisCache:
             logger.error(f"Redis clear pattern error: {e}")
             return 0
 
-# Global cache instance
-cache = RedisCache()
+
+# Singleton instance
+_redis_cache = None
+
+def get_redis_cache() -> RedisCache:
+    """Get Redis cache instance."""
+    global _redis_cache
+    if _redis_cache is None:
+        _redis_cache = RedisCache()
+    return _redis_cache
+
+# Export for backward compatibility
+cache = get_redis_cache()

@@ -1,0 +1,39 @@
+﻿name: CD - Deploy to Staging
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Deploy to Heroku Staging
+      uses: akhileshns/heroku-deploy@v3.13.15
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: research-curator-staging-7115
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        usedocker: true
+        docker_heroku_process_type: web
+        branch: develop
+    
+    - name: Verify deployment
+      run: |
+        echo "⏳ Waiting 30 seconds for deployment..."
+        sleep 30
+        echo "✅ Checking staging health..."
+        curl -f https://research-curator-staging-7115-efa25dc0c6b9.herokuapp.com/api/health || exit 1
+        echo "🎉 Staging deployment successful!"
+    
+    - name: Deployment summary
+      run: |
+        echo "✅ Deployed to Staging!"
+        echo "URL: https://research-curator-staging-7115-efa25dc0c6b9.herokuapp.com"
+        echo "Commit: ${{ github.sha }}"

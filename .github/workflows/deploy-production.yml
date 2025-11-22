@@ -1,0 +1,47 @@
+﻿name: CD - Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Deploy to Heroku Production
+      uses: akhileshns/heroku-deploy@v3.13.15
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: research-curator-prod-7115
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        usedocker: true
+        docker_heroku_process_type: web
+        branch: main
+    
+    - name: Verify deployment
+      run: |
+        echo "⏳ Waiting 30 seconds for deployment..."
+        sleep 30
+        echo "✅ Checking production health..."
+        curl -f https://research-curator-prod-7115-bbb993365eb4.herokuapp.com/api/health || exit 1
+        echo "🎉 Production deployment successful!"
+    
+    - name: Deployment summary
+      run: |
+        echo "✅ Deployed to Production!"
+        echo "URL: https://research-curator-prod-7115-bbb993365eb4.herokuapp.com"
+        echo "Commit: ${{ github.sha }}"
+    
+    - name: Create release tag
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        TAG_NAME="v$(date +%Y.%m.%d-%H%M)"
+        git tag -a "$TAG_NAME" -m "Production release $TAG_NAME"
+        git push origin "$TAG_NAME" || echo "Tag already exists"

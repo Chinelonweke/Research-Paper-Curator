@@ -9,18 +9,23 @@ from src.models.user import User
 from src.core.config import settings
 from src.core.logging_config import app_logger
 
-# Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# FIXED: Use bcrypt with relaxed requirements to avoid initialization errors
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+    bcrypt__default_rounds=12,
+    bcrypt__min_rounds=4,
+    bcrypt__max_rounds=31
+)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its hash."""
-    # Truncate to 72 bytes for bcrypt
+    # Truncate to 72 bytes for bcrypt compatibility
     plain_password = plain_password[:72]
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    """Hash a password for storing."""
-    # Truncate to 72 bytes BEFORE hashing (bcrypt limitation)
+    # Truncate to 72 bytes for bcrypt compatibility
     password = password[:72]
     return pwd_context.hash(password)
 

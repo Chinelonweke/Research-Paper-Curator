@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from src.models.user import User
+from src.database.models import User, SearchLog
 from src.core.config import settings
 from src.core.logging_config import app_logger
 

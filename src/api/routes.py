@@ -10,10 +10,13 @@ from datetime import datetime
 import hashlib
 
 from src.database.connection import get_db
-from src.database.models import Paper, User
+from src.database.models import Paper, PaperChunk, User
 from src.ingestion.arxiv_fetcher import fetch_arxiv_papers
 from src.services.redis_cache import cache
 from src.services.auth import get_current_user, log_search
+from src.services.answer_generator import get_answer_generator
+from src.services.vector_search import get_vector_search
+from src.services.paper_indexer import get_paper_indexer
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -176,53 +179,86 @@ async def ask_question(
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user)
 ):
-    """Ask a question and get answer from papers"""
+    """Ask a question and get AI-powered answer using RAG (vector search + LLM)"""
     try:
         question = request.get("question", "")
-        
+
         if not question:
             raise HTTPException(status_code=400, detail="No question provided")
-        
-        query_lower = question.lower()
-        papers = db.query(Paper).filter(
-            (Paper.title.ilike(f"%{query_lower}%")) |
-            (Paper.abstract.ilike(f"%{query_lower}%"))
-        ).limit(3).all()
-        
+
+        logger.info(f"🤖 RAG Question: {question[:50]}...")
+
+        # Try vector search first (RAG with full paper content)
+        vector_search = get_vector_search()
+        context, sources = vector_search.get_context_for_question(question, db, max_chunks=5)
+
+        if context and sources:
+            # Use RAG with chunk context
+            logger.info(f"Using RAG with {len(sources)} sources")
+            try:
+                generator = get_answer_generator()
+                answer = generator.generate_answer_from_chunks(question, context, sources)
+                return {
+                    "answer": answer,
+                    "sources": [f"{s['title']} - {s['url']}" for s in sources],
+                    "audio_url": None,
+                    "rag_mode": True
+                }
+            except Exception as e:
+                logger.warning(f"RAG generation failed: {e}")
+
+        # Fallback: keyword search on abstracts
+        logger.info("Falling back to keyword search...")
+        stop_words = {'what', 'are', 'the', 'key', 'details', 'in', 'this', 'paper', 'how', 'does', 'is', 'a', 'an', 'of', 'to', 'for', 'and', 'or', 'can', 'you', 'explain', 'describe', 'about', 'tell', 'me'}
+        words = [w.strip('?.,!') for w in question.lower().split() if w.strip('?.,!') not in stop_words and len(w) > 2]
+
+        papers = []
+        if words:
+            from sqlalchemy import or_
+            filters = []
+            for word in words[:5]:
+                filters.append(Paper.title.ilike(f"%{word}%"))
+                filters.append(Paper.abstract.ilike(f"%{word}%"))
+            papers = db.query(Paper).filter(or_(*filters)).limit(3).all()
+
         if not papers:
             arxiv_papers = fetch_arxiv_papers(query=question, max_results=3)
-            
+
             if not arxiv_papers:
                 return {
                     "answer": f"I couldn't find papers related to '{question}'. Try searching for specific topics!",
                     "sources": [],
-                    "audio_url": None
+                    "audio_url": None,
+                    "rag_mode": False
                 }
-            
-            answer = f"Based on research about '{question}':\n\n"
-            sources = []
-            
-            for i, paper in enumerate(arxiv_papers[:3], 1):
-                title = paper.get('title', 'Unknown')
-                abstract = paper.get('abstract', '')[:200]
-                answer += f"{i}. **{title}**\n{abstract}...\n\n"
-                sources.append(f"{title} - {paper.get('url', '')}")
+
+            paper_dicts = arxiv_papers[:3]
+            sources = [f"{p.get('title', '')} - {p.get('url', '')}" for p in paper_dicts]
         else:
+            paper_dicts = [
+                {"title": p.title, "abstract": p.abstract, "url": p.pdf_url or ""}
+                for p in papers
+            ]
+            sources = [f"{p.title} - {p.pdf_url or ''}" for p in papers]
+
+        # Generate answer using abstracts
+        try:
+            generator = get_answer_generator()
+            answer = generator.generate_answer(question, paper_dicts)
+        except Exception as e:
+            logger.warning(f"Groq generation failed, using fallback: {e}")
             answer = f"Based on research about '{question}':\n\n"
-            sources = []
-            
-            for i, paper in enumerate(papers, 1):
-                answer += f"{i}. **{paper.title}**\n{paper.abstract[:200]}...\n\n"
-                sources.append(f"{paper.title} - {paper.pdf_url or ''}")
-        
-        answer += "\n\nFor more details, view the full papers in sources."
-        
+            for i, p in enumerate(paper_dicts, 1):
+                answer += f"{i}. **{p.get('title')}**\n{p.get('abstract', '')[:200]}...\n\n"
+            answer += "\n\nFor more details, view the full papers in sources."
+
         return {
             "answer": answer,
             "sources": sources,
-            "audio_url": None
+            "audio_url": None,
+            "rag_mode": False
         }
-        
+
     except Exception as e:
         logger.error(f"Ask error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -263,4 +299,110 @@ async def get_stats(db: Session = Depends(get_db)):
         }
     except:
         return {"total_papers": 0, "status": "error"}
+
+
+# ============== RAG INDEXING ENDPOINTS ==============
+
+@router.post("/papers/{paper_id}/index")
+async def index_single_paper(
+    paper_id: int,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user)
+):
+    """Index a single paper: download PDF, extract text, chunk, embed"""
+    try:
+        paper = db.query(Paper).filter(Paper.id == paper_id).first()
+        if not paper:
+            raise HTTPException(status_code=404, detail="Paper not found")
+
+        indexer = get_paper_indexer()
+        chunks_created = indexer.index_paper(paper, db)
+
+        return {
+            "success": True,
+            "paper_id": paper_id,
+            "paper_title": paper.title,
+            "chunks_created": chunks_created,
+            "message": f"Successfully indexed paper with {chunks_created} chunks"
+        }
+
+    except Exception as e:
+        logger.error(f"Indexing error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/papers/index-all")
+async def index_all_papers(
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user)
+):
+    """Index all unindexed papers in the database"""
+    try:
+        indexer = get_paper_indexer()
+        stats = indexer.index_all_papers(db, only_unindexed=True)
+
+        return {
+            "success": True,
+            "stats": stats,
+            "message": f"Indexed {stats['successful']} papers with {stats['total_chunks']} total chunks"
+        }
+
+    except Exception as e:
+        logger.error(f"Bulk indexing error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/papers/{paper_id}/chunks")
+async def get_paper_chunks(
+    paper_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get all chunks for a paper"""
+    try:
+        paper = db.query(Paper).filter(Paper.id == paper_id).first()
+        if not paper:
+            raise HTTPException(status_code=404, detail="Paper not found")
+
+        chunks = db.query(PaperChunk).filter(
+            PaperChunk.paper_id == paper_id
+        ).order_by(PaperChunk.chunk_index).all()
+
+        return {
+            "paper_id": paper_id,
+            "paper_title": paper.title,
+            "indexed": paper.indexed,
+            "chunk_count": len(chunks),
+            "chunks": [
+                {
+                    "id": c.id,
+                    "chunk_index": c.chunk_index,
+                    "text": c.text[:200] + "..." if len(c.text) > 200 else c.text,
+                    "text_length": len(c.text),
+                    "has_embedding": c.embedding is not None
+                }
+                for c in chunks
+            ]
+        }
+
+    except Exception as e:
+        logger.error(f"Get chunks error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/index/status")
+async def get_indexing_status(db: Session = Depends(get_db)):
+    """Get overall indexing statistics"""
+    try:
+        indexer = get_paper_indexer()
+        status = indexer.get_indexing_status(db)
+
+        return {
+            "success": True,
+            **status,
+            "rag_enabled": status["total_chunks"] > 0
+        }
+
+    except Exception as e:
+        logger.error(f"Status error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 

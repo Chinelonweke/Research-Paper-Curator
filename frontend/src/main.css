@@ -1,0 +1,35 @@
+/* Global Background */
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Glassmorphism Panel Utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure text readability on glass */
+.text-glass-primary {
+  color: #1a1a1a !important;
+}
+
+.text-glass-secondary {
+  color: #4a4a4a !important;
+}
+
+/* Overrides for Vuetify Components in Glass Context */
+.v-card.glass-panel {
+  background-color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.v-app-bar.glass-panel {
+  background-color: rgba(255, 255, 255, 0.8) !important; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+}

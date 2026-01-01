@@ -16,7 +16,7 @@ class AnswerGenerator:
             raise ValueError("GROQ_API_KEY not found in environment")
         
         self.client = Groq(api_key=api_key)
-        self.model = "llama-3.1-70b-versatile"  # Fast and smart
+        self.model = "llama-3.3-70b-versatile"  # Current Groq model
         logger.info("✅ Groq AI Answer Generator initialized")
     
     def generate_answer(self, question: str, papers: list) -> str:
@@ -73,12 +73,82 @@ Answer in markdown format."""
             answer = response.choices[0].message.content
             
             logger.info(f"✅ Generated {len(answer)} char answer")
-            
+
             return answer
-            
+
         except Exception as e:
             logger.error(f"❌ Answer generation failed: {e}")
             raise
+
+    def generate_answer_from_chunks(
+        self,
+        question: str,
+        context: str,
+        sources: list
+    ) -> str:
+        """
+        Generate answer using chunk context from vector search (RAG)
+
+        Args:
+            question: User's question
+            context: Text context from relevant chunks
+            sources: List of source dicts with title, url, similarity
+
+        Returns:
+            Formatted markdown answer
+        """
+        try:
+            # Build sources reference
+            sources_text = "\n".join([
+                f"- {s['title']} ({s['url']})"
+                for s in sources
+            ])
+
+            prompt = f"""You are an expert AI researcher. Answer the question based ONLY on the provided research paper excerpts.
+
+## Question
+{question}
+
+## Research Paper Excerpts
+{context}
+
+## Instructions
+1. Answer the question thoroughly using information from the excerpts above
+2. Start with a clear, direct answer to the question
+3. Provide detailed explanations with specific references to the research
+4. Use technical details from the papers where relevant
+5. If the excerpts don't contain enough information to fully answer, say so
+6. Format your answer with:
+   - Clear headers (##)
+   - Bullet points for lists
+   - **Bold** for key terms
+   - Code blocks for any technical notation
+7. End with a "Sources" section listing the papers used
+
+## Available Sources
+{sources_text}
+
+Provide a comprehensive, educational answer in markdown format."""
+
+            logger.info("🤖 Generating RAG answer from chunks...")
+
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=2500
+            )
+
+            answer = response.choices[0].message.content
+
+            logger.info(f"✅ Generated RAG answer: {len(answer)} chars")
+
+            return answer
+
+        except Exception as e:
+            logger.error(f"❌ RAG answer generation failed: {e}")
+            raise
+
 
 # Global instance
 answer_generator = None

@@ -36,6 +36,8 @@
   airflow-init:
     image: apache/airflow:2.7.3-python3.10
     container_name: airflow-init
+    env_file:
+      - ../.env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
@@ -46,7 +48,7 @@
       - _AIRFLOW_WWW_USER_CREATE=true
       - _AIRFLOW_WWW_USER_USERNAME=admin
       - _AIRFLOW_WWW_USER_PASSWORD=admin
-      - DATABASE_URL=postgresql://neondb_owner:npg_4DeVUzdo2RYs@ep-frosty-queen-ahy6nn7k-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - ../airflow/dags:/opt/airflow/dags
       - ../airflow/logs:/opt/airflow/logs
@@ -70,13 +72,15 @@
   airflow-webserver:
     image: apache/airflow:2.7.3-python3.10
     container_name: airflow-webserver
+    env_file:
+      - ../.env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=research-curator-secret-key-12345
-      - DATABASE_URL=postgresql://neondb_owner:npg_4DeVUzdo2RYs@ep-frosty-queen-ahy6nn7k-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - ../airflow/dags:/opt/airflow/dags
       - ../airflow/logs:/opt/airflow/logs
@@ -106,12 +110,14 @@
   airflow-scheduler:
     image: apache/airflow:2.7.3-python3.10
     container_name: airflow-scheduler
+    env_file:
+      - ../.env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - DATABASE_URL=postgresql://neondb_owner:npg_4DeVUzdo2RYs@ep-frosty-queen-ahy6nn7k-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - ../airflow/dags:/opt/airflow/dags
       - ../airflow/logs:/opt/airflow/logs
@@ -138,12 +144,14 @@
     container_name: rag-api
     ports:
       - "8000:8000"
+    env_file:
+      - ../.env
     environment:
-      - DATABASE_URL=postgresql://neondb_owner:npg_4DeVUzdo2RYs@ep-frosty-queen-ahy6nn7k-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
       - ENVIRONMENT=production
-      - SECRET_KEY=0FQzZWCnlvfwjrUR5VutpI1aH4cDE2AX68JqkPS7oeKbNhm3YsyTB9MxLOdgGi
+      - SECRET_KEY=${SECRET_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       - ../src:/app/src
     depends_on:
@@ -169,6 +177,27 @@
     networks:
       - rag-network
     restart: unless-stopped
+
+  vue-frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: rag-vue-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://api:8000
+      - VITE_WS_URL=ws://api:8000
+    depends_on:
+      - api
+    networks:
+      - rag-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   rag-network:

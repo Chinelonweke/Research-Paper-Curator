@@ -1,10 +1,17 @@
 ﻿"""
-Database Models - WITH USER TRACKING
+Database Models - WITH USER TRACKING AND RAG SUPPORT
 """
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
+
+try:
+    from pgvector.sqlalchemy import Vector
+    PGVECTOR_AVAILABLE = True
+except ImportError:
+    PGVECTOR_AVAILABLE = False
+    Vector = None
 
 Base = declarative_base()
 
@@ -56,7 +63,7 @@ class SavedPaper(Base):
 class Paper(Base):
     """Research paper model"""
     __tablename__ = "papers"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     arxiv_id = Column(String(50), unique=True, index=True, nullable=False)
     title = Column(String(500), nullable=False)
@@ -68,4 +75,24 @@ class Paper(Base):
     categories = Column(String(200))
     indexed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationship to chunks
+    chunks = relationship("PaperChunk", back_populates="paper", cascade="all, delete-orphan")
+
+
+class PaperChunk(Base):
+    """Paper chunks with vector embeddings for RAG"""
+    __tablename__ = "paper_chunks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    paper_id = Column(Integer, ForeignKey("papers.id", ondelete="CASCADE"), index=True, nullable=False)
+    chunk_index = Column(Integer, nullable=False)
+    text = Column(Text, nullable=False)
+    embedding = Column(Vector(384)) if PGVECTOR_AVAILABLE else Column(Text)  # 384-dim for all-MiniLM-L6-v2
+    start_char = Column(Integer)
+    end_char = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationship to paper
+    paper = relationship("Paper", back_populates="chunks")
  

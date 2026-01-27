@@ -61,12 +61,23 @@ body {
   color: #fff !important;
 }
 
-/* Validation and helper text inside auth forms should be white */
+/* Validation and helper text inside auth forms should be black */
 .auth-background .v-messages, .auth-background .v-messages__message {
-  color: #fff !important;
+  color: #1a1a1a !important;
 }
 .auth-background .v-field .v-field__messages {
-  color: #fff !important;
+  color: #1a1a1a !important;
+}
+
+/* Inputs (labels, icons) should remain black on auth pages */
+.auth-background .v-field .v-field__label, .auth-background .v-text-field .v-field__prepend-inner {
+  color: #1a1a1a !important;
+}
+
+/* Ensure outline and invalid states keep red borders but labels stay black */
+.auth-background .v-field.v-field--error .v-field__label,
+.auth-background .v-field.v-field--error .v-messages__message {
+  color: #ef4444 !important;
 }
 
 /* Landing page grey background */

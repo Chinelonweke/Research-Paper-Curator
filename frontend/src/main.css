@@ -43,6 +43,15 @@ body {
   color: #666666 !important;
 }
 
+/* Ensure success/error/info alerts on auth pages use white text for contrast */
+.auth-background .v-alert,
+.auth-background .v-alert * {
+  color: #fff !important;
+}
+.auth-background .v-alert .v-alert__title {
+  color: #fff !important;
+}
+
 /* Landing page grey background */
 .landing-background {
   background-color: #808080 !important;

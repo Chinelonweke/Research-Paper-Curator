@@ -49,7 +49,7 @@ onMounted(() => {
 
 <style scoped>
 .auth-background {
-  background-color: transparent;
+  background-color: #808080 !important;
   min-height: 100vh;
   color: black;
 }

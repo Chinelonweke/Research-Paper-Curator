@@ -215,7 +215,7 @@ function render() {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
+  z-index: -1; /* sit behind app content */
   overflow: hidden;
   pointer-events: none; /* Let clicks pass through */
 }

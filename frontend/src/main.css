@@ -52,6 +52,14 @@ body {
   color: #fff !important;
 }
 
+/* Validation and helper text inside auth forms should be white */
+.auth-background .v-messages, .auth-background .v-messages__message {
+  color: #fff !important;
+}
+.auth-background .v-field .v-field__messages {
+  color: #fff !important;
+}
+
 /* Landing page grey background */
 .landing-background {
   background-color: #808080 !important;

@@ -40,7 +40,11 @@ body {
 }
 
 /* But make primary/submit button labels white for contrast */
-.auth-background .v-btn--block, .auth-background .v-btn {
+.auth-background .v-btn {
+  color: black !important;
+}
+/* Only make block submit buttons use white labels for contrast */
+.auth-background .v-btn.v-btn--block {
   color: #fff !important;
 }
 

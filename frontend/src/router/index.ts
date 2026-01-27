@@ -7,6 +7,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue'
 
 // Pages (lazy loaded)
 const HomePage = () => import('@/pages/HomePage.vue')
+const LandingPage = () => import('@/pages/LandingPage.vue')
 const SearchPage = () => import('@/pages/SearchPage.vue')
 const AskPage = () => import('@/pages/AskPage.vue')
 const BrowsePage = () => import('@/pages/BrowsePage.vue')
@@ -18,6 +19,7 @@ const HistoryPage = () => import('@/pages/HistoryPage.vue')
 const NotFoundPage = () => import('@/pages/NotFoundPage.vue')
 
 const routes = [
+  { path: '/landing', name: 'landing', component: LandingPage },
   {
     path: '/',
     component: DefaultLayout,

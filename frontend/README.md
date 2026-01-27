@@ -109,6 +109,16 @@ The frontend connects to the FastAPI backend:
 - `POST /api/ask` - Ask questions
 - `WS /ws/{client_id}` - Real-time streaming
 
+## Security
+
+This frontend implements several security measures to protect against common vulnerabilities:
+
+- **XSS Prevention**: All AI-generated content is sanitized using DOMPurify before rendering
+- **Content Security Policy**: Strict CSP headers are implemented to prevent unauthorized script execution
+- **Secure Dependencies**: Regular dependency updates and security audits
+
+For more details on recent security fixes, see [SECURITY_FIXES.md](../SECURITY_FIXES.md)
+
 ## Contributing
 
 1. Follow Vue.js style guide

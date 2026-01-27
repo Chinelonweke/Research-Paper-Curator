@@ -1,13 +1,13 @@
 <template>
   <v-app>
     <ThreeBackground />
-    <v-main class="d-flex align-center justify-center auth-background">
+    <v-main class="d-flex align-center justify-center auth-background text-black">
       <v-container class="position-relative" style="z-index: 1">
         <v-row justify="center">
           <v-col cols="12" sm="8" md="6" lg="4">
             <!-- Logo/Brand -->
             <div class="text-center mb-8">
-              <router-link to="/" class="text-decoration-none">
+              <router-link to="/landing" class="text-decoration-none">
                 <v-icon size="64" color="black">mdi-book-open-page-variant</v-icon>
                 <h1 class="text-h4 mt-4 text-black">Research Paper Curator</h1>
                 <p class="text-h6 text-medium-emphasis mt-2">
@@ -23,7 +23,7 @@
 
             <!-- Footer Links -->
             <div class="text-center mt-6">
-              <router-link to="/" class="text-decoration-none text-medium-emphasis">
+              <router-link to="/landing" class="text-decoration-none text-medium-emphasis">
                 <v-icon size="small">mdi-arrow-left</v-icon>
                 Back to Home
               </router-link>
@@ -51,5 +51,10 @@ onMounted(() => {
 .auth-background {
   background-color: transparent;
   min-height: 100vh;
+  color: black;
+}
+
+.text-medium-emphasis {
+  color: #666666 !important;
 }
 </style>

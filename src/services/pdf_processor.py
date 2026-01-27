@@ -4,11 +4,62 @@ PDF Processor - Download and extract text from arXiv PDFs
 import io
 import re
 import logging
+import ipaddress
 import requests
 from typing import Optional
+from urllib.parse import urlparse
 from pypdf import PdfReader
 
 logger = logging.getLogger(__name__)
+
+# Allowed domains for PDF downloads
+ALLOWED_DOMAINS = {'arxiv.org', 'export.arxiv.org', 'ar5iv.org', 'ar5iv.labs.arxiv.org'}
+
+
+def _is_safe_url(url: str) -> bool:
+    """
+    Validate that a URL is safe to download from.
+    Prevents SSRF attacks by blocking internal IPs and non-allowed domains.
+    """
+    try:
+        parsed = urlparse(url)
+
+        # Must use HTTPS scheme
+        if parsed.scheme != 'https':
+            logger.warning(f"Blocked non-HTTPS URL: {url}")
+            return False
+
+        # Must have a hostname
+        if not parsed.hostname:
+            logger.warning(f"Blocked URL without hostname: {url}")
+            return False
+
+        # Check domain is in allowlist
+        hostname = parsed.hostname.lower()
+        if hostname not in ALLOWED_DOMAINS:
+            logger.warning(f"Blocked URL from non-allowed domain: {hostname}")
+            return False
+
+        # Resolve hostname and check for internal IPs
+        try:
+            import socket
+            addr_info = socket.getaddrinfo(hostname, None)
+            for _, _, _, _, sockaddr in addr_info:
+                ip = sockaddr[0]
+                ip_obj = ipaddress.ip_address(ip)
+
+                # Block private, loopback, and reserved IPs
+                if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved or ip_obj.is_multicast:
+                    logger.warning(f"Blocked internal IP: {ip}")
+                    return False
+        except socket.gaierror:
+            logger.warning(f"Could not resolve hostname: {hostname}")
+            return False
+
+        return True
+    except Exception as e:
+        logger.warning(f"URL validation error for {url}: {e}")
+        return False
 
 
 class PDFProcessor:
@@ -31,13 +82,19 @@ class PDFProcessor:
             PDF bytes or None if download fails
         """
         try:
+            # Validate URL to prevent SSRF attacks
+            if not _is_safe_url(pdf_url):
+                logger.error(f"Unsafe PDF URL rejected: {pdf_url}")
+                return None
+
             logger.info(f"Downloading PDF: {pdf_url}")
 
             response = requests.get(
                 pdf_url,
                 headers=self.headers,
                 timeout=self.timeout,
-                stream=True
+                stream=True,
+                allow_redirects=True
             )
             response.raise_for_status()
 

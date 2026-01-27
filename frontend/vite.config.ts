@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       host: true,
+      headers: {
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;"
+      },
       proxy: {
         '/api': {
           target: env.VITE_API_URL || 'http://localhost:8000',

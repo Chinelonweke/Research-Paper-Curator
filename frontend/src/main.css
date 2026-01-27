@@ -33,3 +33,22 @@ body {
   background-color: rgba(255, 255, 255, 0.8) !important; 
   border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
+
+/* Force auth pages to use dark text over glass background */
+.auth-background, .auth-background * {
+  color: black !important;
+}
+
+.auth-background .text-medium-emphasis {
+  color: #666666 !important;
+}
+
+/* Landing page grey background */
+.landing-background {
+  background-color: #808080 !important;
+  color: #000 !important;
+}
+
+.landing-background .text-medium-emphasis {
+  color: #444444 !important;
+}

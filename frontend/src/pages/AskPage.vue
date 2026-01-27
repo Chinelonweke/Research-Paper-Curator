@@ -188,6 +188,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import { format } from 'date-fns'
 import { useQAStore } from '@/stores/qa.store'
 import wsService from '@/services/websocket.service'
@@ -199,7 +200,30 @@ const wsConnected = computed(() => wsService.connected.value)
 
 const formattedAnswer = computed(() => {
   if (!qaStore.answer) return ''
-  return marked(qaStore.answer)
+  // Workaround for TypeScript issue with marked return type
+  const markedFn = marked as unknown as (src: string) => string
+  const rawHtml = markedFn(qaStore.answer)
+  // Use strict DOMPurify config to prevent XSS
+  const purifyConfig = {
+    ALLOWED_TAGS: [
+      'p', 'br', 'strong', 'b', 'em', 'i', 'u', 'strike', 'del',
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'ul', 'ol', 'li',
+      'blockquote', 'code', 'pre',
+      'a', 'img',
+      'table', 'thead', 'tbody', 'tr', 'th', 'td'
+    ],
+    ALLOWED_ATTR: [
+      'href', 'title', 'target',
+      'src', 'alt', 'width', 'height',
+      'class'
+    ],
+    ALLOW_DATA_ATTR: false,
+    SANITIZE_DOM: true,
+    // Force all links to open in new tab with rel="noopener noreferrer"
+    FORCE_BODY: true
+  }
+  return DOMPurify.sanitize(rawHtml, purifyConfig) as string
 })
 
 async function handleAsk() {

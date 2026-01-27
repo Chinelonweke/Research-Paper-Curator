@@ -24,8 +24,8 @@ let mouseX = 0
 let mouseY = 0
 let targetX = 0
 let targetY = 0
-const windowHalfX = window.innerWidth / 2
-const windowHalfY = window.innerHeight / 2
+let windowHalfX = window.innerWidth / 2
+let windowHalfY = window.innerHeight / 2
 
 onMounted(() => {
   init()
@@ -49,15 +49,15 @@ function init() {
 
   // Scene
   scene = new THREE.Scene()
-  // Transparent background so CSS gradient shows through
-  scene.background = null 
+  // Background set to grey
+  scene.background = new THREE.Color(0x808080)
 
   // Camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000)
   camera.position.z = 500
 
   // Renderer
-  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+  renderer = new THREE.WebGLRenderer({ alpha: false, antialias: true })
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(window.innerWidth, window.innerHeight)
   container.value.appendChild(renderer.domElement)

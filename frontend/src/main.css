@@ -35,8 +35,13 @@ body {
 }
 
 /* Force auth pages to use dark text over glass background */
-.auth-background, .auth-background * {
+.auth-background {
   color: black !important;
+}
+
+/* But make primary/submit button labels white for contrast */
+.auth-background .v-btn--block, .auth-background .v-btn {
+  color: #fff !important;
 }
 
 .auth-background .text-medium-emphasis {

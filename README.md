@@ -10,11 +10,12 @@ A production-ready Retrieval-Augmented Generation (RAG) system for curating, sea
 ## 🌟 Features
 
 ### Core Functionality
-- **🤖 Intelligent Q&A**: Ask questions about AI research and get accurate answers with citations
-- **🔍 Hybrid Search**: Combines vector similarity and keyword search for optimal results
-- **📄 Paper Management**: Automatic fetching, processing, and indexing of arXiv papers
-- **💬 Natural Language Interface**: User-friendly web UI powered by Gradio
-- **🚀 High Performance**: Redis caching and optimized vector search
+- **🤖 Intelligent Q&A**: Ask questions about AI research and get accurate answers with citations.
+- **🔍 Hybrid Search**: Combines semantic vector similarity and keyword search for optimal results.
+- **🖼️ Premium Glassmorphism UI**: High-end, interactive web interface with modern blurring and micro-animations.
+- **🌑 Monochrome Branding**: Sophisticated black-core aesthetic for a professional, distraction-free environment.
+- **📄 Paper Management**: Automatic fetching, processing, and indexing of arXiv papers.
+- **🚀 High Performance**: Redis caching and optimized search response times.
 
 ### Technical Highlights
 - **Retrieval-Augmented Generation (RAG)** architecture
@@ -75,7 +76,7 @@ python scripts/seed_data.py
 
 # 7. Access the system
 # API: http://localhost:8000
-# UI: http://localhost:7860
+# UI: http://localhost:3000
 # Airflow: http://localhost:8080
 ```
 
@@ -90,23 +91,24 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # 3. Install dependencies
-make dev-install
+pip install -r requirements.txt
 
 # 4. Configure environment
-make setup-env
+cp .env.example .env
 # Edit .env file
 
 # 5. Start services with Docker
 docker-compose -f docker/docker-compose.yml up -d
 
 # 6. Initialize database
-make db-init
+python scripts/setup_db.py
 
 # 7. Seed data
-make db-seed
+python scripts/seed_data.py
 
-# 8. Run the application
-make run-all
+# 8. Run the application (Local Dev)
+# Backend: python -m src.api.main
+# Frontend: cd frontend && npm run dev
 ```
 
 ## 🏗️ Architecture
@@ -143,14 +145,13 @@ make run-all
 | Component | Purpose | Technology |
 |-----------|---------|------------|
 | **API Layer** | RESTful API endpoints | FastAPI |
-| **UI Layer** | Web interface | Gradio |
+| **Frontend** | Modern glassmorphism UI | Vue 3 + Vuetify |
 | **Search Engine** | Hybrid retrieval | OpenSearch + BM25 |
-| **LLM** | Answer generation | Ollama (Llama 2) |
+| **LLM** | Answer generation | Ollama (Llama 3 / DeepSeek) |
 | **Vector Store** | Embeddings storage | OpenSearch |
-| **Database** | Metadata & logs | PostgreSQL |
+| **Branding** | Custom Identity | SVG Logo + Monochrome Theme |
 | **Cache** | Performance optimization | Redis |
 | **Scheduler** | Automated tasks | Apache Airflow |
-| **Embeddings** | Text vectorization | Sentence Transformers |
 | **Monitoring** | Observability | Langfuse |
 
 ## 📦 Installation
@@ -195,9 +196,8 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
+# Install dependencies
 pip install -r requirements.txt
-pip install -r requirements-dev.txt
-pip install -e .
 ```
 
 #### Step 3: Configure Services
@@ -297,29 +297,25 @@ See `.env.example` for all options.
 python -m src.api.main
 
 # Terminal 2: UI
-python -m src.ui.gradio_interface
+cd frontend; npm run dev
 ```
 
-**Linux/Mac:**
-```bash
-# Using Makefile
-make run-all
+**Multi-terminal / Manual:**
 
-# Or manually
-# Terminal 1: API
-make run-api
+# Terminal 1: API/Backend
+python -m src.api.main
 
-# Terminal 2: UI
-make run-ui
-```
+# Terminal 2: UI/Frontend
+cd frontend && npm run dev
 
 ### Using the Web Interface
 
-1. Open browser to `http://localhost:7860`
-2. Enter your question in the text box
-3. Adjust settings (number of sources, categories)
-4. Click "Ask Question"
-5. View answer and sources
+1. Open browser to `http://localhost:3000`
+2. Explore the **Landing Page** with dynamic particle background
+3. Navigate to **Ask** to synthesize answers from multiple papers
+4. Check **Browse** to view the full library with interactive glass cards
+5. Use **Search** for deep hybrid exploration
+6. Access your **History & Analytics** to re-run past discoveries
 
 ### Using the API
 
@@ -376,28 +372,23 @@ research-paper-curator/
 ### Running Tests
 ```bash
 # All tests
-make test
+pytest
 
 # Unit tests only
-make test-unit
+pytest tests/unit
 
 # Integration tests
-make test-integration
+pytest tests/integration
 
 # With coverage
-make coverage
+pytest --cov=src --cov-report=term-missing
 ```
 
 ### Code Quality
 ```bash
-# Format code
-make format
-
-# Lint code
-make lint
-
-# Type checking
-make type-check
+# Format / Lint code
+# Backend: ruff check . --fix
+# Frontend: cd frontend && npm run lint
 ```
 
 ### Adding New Features
@@ -496,9 +487,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - email@example.com
+Your Name - [@ebukagaus](https://twitter.com/ebukagaus) - ebulamicheal@gmail.com
 
-Project Link: [https://github.com/yourusername/research-paper-curator](https://github.com/yourusername/research-paper-curator)
 
 ---
 

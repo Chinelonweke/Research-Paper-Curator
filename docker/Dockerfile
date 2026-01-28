@@ -16,13 +16,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY src/ ./src/
-COPY .env.example .env
 
 # Create audio directory
 RUN mkdir -p /tmp/audio && chmod 777 /tmp/audio
 
 # Expose port
-EXPOSE $PORT
+EXPOSE 8000
 
 # Run the application
-CMD uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

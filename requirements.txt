@@ -20,3 +20,7 @@ pyttsx3==2.90
 SpeechRecognition==3.10.0
 gTTS==2.5.0
 bcrypt==4.0.1
+groq>=0.11.0
+pypdf>=4.0.0
+pgvector>=0.2.4
+sentence-transformers>=2.2.0

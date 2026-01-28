@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"  # Allow extra env vars not defined in Settings
 
 # Global settings instance
 settings = Settings()

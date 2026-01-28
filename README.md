@@ -487,9 +487,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - email@example.com
+Your Name - [@ebukagaus](https://twitter.com/ebukagaus) - ebulamicheal@gmail.com
 
-Project Link: [https://github.com/yourusername/research-paper-curator](https://github.com/yourusername/research-paper-curator)
 
 ---
 

@@ -7,7 +7,7 @@
     networks:
       - rag-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -27,7 +27,7 @@
     networks:
       - rag-network
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow"]
+      test: [ "CMD", "pg_isready", "-U", "airflow" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -48,7 +48,7 @@
       - _AIRFLOW_WWW_USER_CREATE=true
       - _AIRFLOW_WWW_USER_USERNAME=admin
       - _AIRFLOW_WWW_USER_PASSWORD=admin
-      - DATABASE_URL=${DATABASE_URL}
+      - AIRFLOW__API__RATELIMIT_STORAGE_URI=redis://redis:6379/1
     volumes:
       - ../airflow/dags:/opt/airflow/dags
       - ../airflow/logs:/opt/airflow/logs
@@ -61,8 +61,8 @@
       - |
         pip install -r /requirements.txt
         airflow db migrate
-        airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true
-        echo "✅ Airflow initialized"
+        airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com >/dev/null 2>&1 || true
+        echo "Airflow initialized"
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,7 +80,6 @@
       - AIRFLOW__CORE__FERNET_KEY=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=research-curator-secret-key-12345
-      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - ../airflow/dags:/opt/airflow/dags
       - ../airflow/logs:/opt/airflow/logs
@@ -102,7 +101,7 @@
       - rag-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      test: [ "CMD", "curl", "--fail", "http://localhost:8080/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -117,7 +116,6 @@
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - ../airflow/dags:/opt/airflow/dags
       - ../airflow/logs:/opt/airflow/logs
@@ -147,11 +145,8 @@
     env_file:
       - ../.env
     environment:
-      - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379
       - ENVIRONMENT=production
-      - SECRET_KEY=${SECRET_KEY}
-      - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       - ../src:/app/src
     depends_on:
@@ -186,15 +181,14 @@
     ports:
       - "3000:3000"
     environment:
-      - VITE_API_URL=http://api:8000
-      - VITE_WS_URL=ws://api:8000
+      - VITE_APP_NAME=ResearchPaperCurator
     depends_on:
       - api
     networks:
       - rag-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -205,4 +199,5 @@ networks:
 
 volumes:
   postgres-data:
+
 

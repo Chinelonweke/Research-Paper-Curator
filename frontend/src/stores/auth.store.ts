@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import type { User, LoginCredentials, RegisterData } from '@/types/auth.types'
 import authService from '@/services/api/auth.service'
 import router from '@/router'
+import { useCollectionsStore } from '@/stores/collections.store'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -57,9 +58,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
+    const collectionsStore = useCollectionsStore()
     user.value = null
     token.value = null
     localStorage.removeItem('access_token')
+    collectionsStore.reset()
     router.push('/')
   }
 

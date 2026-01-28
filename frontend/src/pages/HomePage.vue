@@ -1,146 +1,172 @@
 <template>
-  <div>
+  <v-container fluid class="pa-0">
     <!-- Hero Section -->
-    <v-row class="mb-8">
-      <v-col cols="12" class="text-center">
-        <h1 class="text-h3 text-md-h2 font-weight-bold mb-4 text-black">
-          Discover AI Research Papers
+    <v-row class="mb-12 pt-8 pb-12 px-4 shadow-hero" justify="center">
+      <v-col cols="12" md="10" lg="8" class="text-center">
+        <h1 class="text-h3 text-md-h2 font-weight-black mb-4 text-black tracking-tight">
+          Discover Research Papers
         </h1>
-        <p class="text-h6 text-medium-emphasis mb-6">
-          Search, explore, and get AI-powered insights from the latest research
+        <p class="text-h6 text-medium-emphasis mb-10 max-w-2xl mx-auto">
+          Search, explore, and synthesize AI-powered insights from a vast library of indexed research.
         </p>
 
         <!-- Quick Search -->
-        <v-card max-width="600" class="mx-auto glass-panel" elevation="0">
-          <v-card-text class="pa-4">
-            <v-text-field
-              v-model="searchQuery"
-              label="Search papers..."
-              placeholder="e.g., transformers, GPT, neural networks"
-              prepend-inner-icon="mdi-magnify"
-              variant="outlined"
-              hide-details
-              bg-color="transparent"
-              @keyup.enter="handleSearch"
-            />
-            <v-btn
-              color="black"
-              size="large"
-              block
-              class="mt-4"
-              elevation="0"
-              @click="handleSearch"
-            >
-              <v-icon start>mdi-magnify</v-icon>
-              Search Papers
-            </v-btn>
-          </v-card-text>
+        <v-card max-width="700" class="mx-auto glass-panel rounded-pill pa-2 border-0 shadow-lg" elevation="0">
+          <v-row no-gutters align="center">
+            <v-col class="flex-grow-1">
+              <v-text-field
+                v-model="searchQuery"
+                placeholder="Search by keywords, authors, or topics..."
+                variant="plain"
+                class="px-6 text-h6"
+                hide-details
+                @keyup.enter="handleSearch"
+              />
+            </v-col>
+            <v-col cols="auto" class="pa-1">
+              <v-btn
+                color="primary"
+                size="x-large"
+                rounded="pill"
+                class="px-8 font-weight-bold"
+                elevation="4"
+                @click="handleSearch"
+              >
+                <v-icon start>mdi-magnify</v-icon>
+                <span class="d-none d-sm-inline">Search Papers</span>
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
 
     <!-- Quick Actions -->
-    <v-row class="mb-8">
-      <v-col cols="12" md="4">
+    <v-row class="mb-12 px-4" justify="center">
+      <v-col cols="12" md="4" lg="3">
         <v-card
-          height="100%"
-          class="d-flex flex-column glass-panel"
+          class="glass-panel hover-lift rounded-xl pa-4 text-center h-100 d-flex flex-column border-0"
           :to="{ name: 'search' }"
-          elevation="0"
         >
-          <v-card-text class="text-center flex-grow-1 d-flex flex-column justify-center">
-            <v-icon size="64" color="black" class="mb-4">mdi-magnify</v-icon>
-            <h3 class="text-h5 mb-2 text-black">Search Papers</h3>
-            <p class="text-body-2 text-medium-emphasis">
-              Find research papers using hybrid semantic and keyword search
+          <v-card-text class="flex-grow-1 d-flex flex-column align-center justify-center">
+            <v-avatar color="primary" variant="tonal" size="80" class="mb-6">
+              <v-icon size="40">mdi-magnify</v-icon>
+            </v-avatar>
+            <h3 class="text-h5 font-weight-bold mb-3">Hybrid Search</h3>
+            <p class="text-body-2 text-medium-emphasis mb-0">
+              Combine semantic and keyword search to find the most relevant papers.
             </p>
           </v-card-text>
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="4" lg="3">
         <v-card
-          height="100%"
-          class="d-flex flex-column glass-panel"
+          class="glass-panel hover-lift rounded-xl pa-4 text-center h-100 d-flex flex-column border-0"
           :to="{ name: 'ask' }"
-          elevation="0"
         >
-          <v-card-text class="text-center flex-grow-1 d-flex flex-column justify-center">
-            <v-icon size="64" color="black" class="mb-4">mdi-comment-question</v-icon>
-            <h3 class="text-h5 mb-2 text-black">Ask Questions</h3>
-            <p class="text-body-2 text-medium-emphasis">
-              Get AI-powered answers based on research papers with citations
+          <v-card-text class="flex-grow-1 d-flex flex-column align-center justify-center">
+            <v-avatar color="secondary" variant="tonal" size="80" class="mb-6">
+              <v-icon size="40">mdi-comment-question</v-icon>
+            </v-avatar>
+            <h3 class="text-h5 font-weight-bold mb-3">AI Inquisitor</h3>
+            <p class="text-body-2 text-medium-emphasis mb-0">
+              Get direct answers with citations from the latest AI research.
             </p>
           </v-card-text>
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="4" lg="3">
         <v-card
-          height="100%"
-          class="d-flex flex-column glass-panel"
+          class="glass-panel hover-lift rounded-xl pa-4 text-center h-100 d-flex flex-column border-0"
           :to="{ name: 'browse' }"
-          elevation="0"
         >
-          <v-card-text class="text-center flex-grow-1 d-flex flex-column justify-center">
-            <v-icon size="64" color="black" class="mb-4">mdi-book-open-variant</v-icon>
-            <h3 class="text-h5 mb-2 text-black">Browse Papers</h3>
-            <p class="text-body-2 text-medium-emphasis">
-              Explore the full collection of indexed research papers
+          <v-card-text class="flex-grow-1 d-flex flex-column align-center justify-center">
+            <v-avatar color="accent" variant="tonal" size="80" class="mb-6">
+              <v-icon size="40">mdi-book-open-variant</v-icon>
+            </v-avatar>
+            <h3 class="text-h5 font-weight-bold mb-3">Discovery</h3>
+            <p class="text-body-2 text-medium-emphasis mb-0">
+              Explore the full landscape of indexed research documents.
             </p>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- Stats Section -->
-    <v-row v-if="stats">
-      <v-col cols="12">
-        <v-card class="glass-panel" elevation="0">
-          <v-card-title class="d-flex align-center text-black">
-            <v-icon class="mr-2 text-black">mdi-chart-bar</v-icon>
-            System Status
-          </v-card-title>
-          <v-card-text>
-            <v-row>
-              <v-col cols="6" md="3">
-                <div class="text-center">
-                  <div class="text-h4 font-weight-bold text-black">
-                    {{ stats.total_papers.toLocaleString() }}
-                  </div>
-                  <div class="text-body-2 text-medium-emphasis">Total Papers</div>
+    <!-- Stats Monitor -->
+    <v-row v-if="stats" class="px-4 mb-12" justify="center">
+      <v-col cols="12" lg="10" xl="9">
+        <v-card class="glass-panel rounded-xl pa-6 border-0 shadow-sm" elevation="0">
+          <div class="d-flex align-center mb-6">
+            <v-avatar color="black" variant="tonal" size="32" class="mr-3">
+              <v-icon size="18">mdi-pulse</v-icon>
+            </v-avatar>
+            <span class="text-h6 font-weight-bold">System Status</span>
+            <v-spacer />
+            <v-chip size="small" variant="tonal" color="success" class="font-weight-bold">OPERATIONAL</v-chip>
+          </div>
+
+          <v-row>
+            <v-col cols="12" sm="6" md="3">
+              <div class="stat-card glass-panel rounded-xl pa-4 text-center border-0">
+                <div class="text-h4 font-weight-black text-primary mb-1">
+                  {{ stats.total_papers.toLocaleString() }}
                 </div>
-              </v-col>
-              <v-col cols="6" md="3">
-                <div class="text-center">
-                  <v-chip :color="stats.status === 'connected' ? 'success' : 'error'" variant="outlined">
-                    {{ stats.status }}
-                  </v-chip>
-                  <div class="text-body-2 text-medium-emphasis mt-1">Database</div>
+                <div class="text-caption font-weight-bold text-medium-emphasis text-uppercase tracking-widest">
+                  Total Papers
                 </div>
-              </v-col>
-              <v-col cols="6" md="3">
-                <div class="text-center">
-                  <v-chip :color="stats.redis === 'connected' ? 'success' : 'warning'" variant="outlined">
-                    {{ stats.redis }}
-                  </v-chip>
-                  <div class="text-body-2 text-medium-emphasis mt-1">Cache</div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="3">
+              <div class="stat-card glass-panel rounded-xl pa-4 text-center border-0">
+                <v-chip
+                  :color="stats.status === 'connected' ? 'success' : 'error'"
+                  variant="flat"
+                  size="small"
+                  class="mb-2 font-weight-bold"
+                >
+                  {{ stats.status.toUpperCase() }}
+                </v-chip>
+                <div class="text-caption font-weight-bold text-medium-emphasis text-uppercase tracking-widest">
+                  Main Engine
                 </div>
-              </v-col>
-              <v-col cols="6" md="3">
-                <div class="text-center">
-                  <v-chip color="black" variant="outlined">
-                    {{ stats.database }}
-                  </v-chip>
-                  <div class="text-body-2 text-medium-emphasis mt-1">Provider</div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="3">
+              <div class="stat-card glass-panel rounded-xl pa-4 text-center border-0">
+                <v-chip
+                  :color="stats.redis === 'connected' ? 'success' : 'warning'"
+                  variant="flat"
+                  size="small"
+                  class="mb-2 font-weight-bold"
+                >
+                  {{ stats.redis.toUpperCase() }}
+                </v-chip>
+                <div class="text-caption font-weight-bold text-medium-emphasis text-uppercase tracking-widest">
+                  Context Cache
                 </div>
-              </v-col>
-            </v-row>
-          </v-card-text>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="3">
+              <div class="stat-card glass-panel rounded-xl pa-4 text-center border-0">
+                <div class="text-subtitle-1 font-weight-black text-black mb-1">
+                  {{ stats.database }}
+                </div>
+                <div class="text-caption font-weight-bold text-medium-emphasis text-uppercase tracking-widest">
+                  Knowledge Hub
+                </div>
+              </div>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script setup lang="ts">

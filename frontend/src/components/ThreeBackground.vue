@@ -14,16 +14,14 @@ let particles: THREE.Group
 let animationFrameId: number
 
 // Configuration
-const PARTICLE_COUNT = 150
-const CONNECTION_DISTANCE = 150
+const PARTICLE_COUNT = 200
+const CONNECTION_DISTANCE = 160
 const PARTICLE_SIZE = 2
 const BASE_COLOR = 0x000000 // Black lines/nodes for light mode
 
 // Mouse interaction
 let mouseX = 0
 let mouseY = 0
-let targetX = 0
-let targetY = 0
 let windowHalfX = window.innerWidth / 2
 let windowHalfY = window.innerHeight / 2
 
@@ -45,19 +43,18 @@ onBeforeUnmount(() => {
 })
 
 function init() {
+  console.log('ThreeBackground: Initializing...')
   if (!container.value) return
 
   // Scene
   scene = new THREE.Scene()
-  // Background set to grey
-  scene.background = new THREE.Color(0x808080)
 
   // Camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000)
   camera.position.z = 500
 
   // Renderer
-  renderer = new THREE.WebGLRenderer({ alpha: false, antialias: true })
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(window.innerWidth, window.innerHeight)
   container.value.appendChild(renderer.domElement)
@@ -127,8 +124,6 @@ function animate() {
 
 function render() {
   // Smooth camera follow
-  targetX = mouseX * 0.1
-  targetY = mouseY * 0.1
   
   // Rotate entire group slowly
   particles.rotation.x += 0.0005
@@ -191,7 +186,7 @@ function render() {
     const lineMat = new THREE.LineBasicMaterial({
       color: BASE_COLOR,
       transparent: true,
-      opacity: 0.15
+      opacity: 0.25
     })
 
     const lines = new THREE.LineSegments(lineGeo, lineMat)

@@ -75,6 +75,12 @@ export const useCollectionsStore = defineStore('collections', () => {
     error.value = null
   }
 
+  function reset() {
+    savedPapers.value = []
+    loading.value = false
+    error.value = null
+  }
+
   return {
     savedPapers,
     loading,
@@ -86,6 +92,7 @@ export const useCollectionsStore = defineStore('collections', () => {
     updateNotes,
     isPaperSaved,
     getSavedPaperByPaperId,
-    clearError
+    clearError,
+    reset
   }
 })

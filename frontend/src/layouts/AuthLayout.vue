@@ -1,15 +1,15 @@
 <template>
   <v-app>
     <ThreeBackground />
-    <v-main class="d-flex align-center justify-center auth-background text-black">
+    <v-main class="d-flex align-center justify-center auth-page-container transparent-bg text-black">
       <v-container class="position-relative" style="z-index: 1">
         <v-row justify="center">
           <v-col cols="12" sm="8" md="6" lg="4">
             <!-- Logo/Brand -->
             <div class="text-center mb-8">
               <router-link to="/landing" class="text-decoration-none">
-                <v-icon size="64" color="black">mdi-book-open-page-variant</v-icon>
-                <h1 class="text-h4 mt-4 text-black">Research Paper Curator</h1>
+                <AppLogo size="80" class="mb-4" />
+                <h1 class="text-h4 mt-2 text-black font-weight-black">Research Paper Curator</h1>
                 <p class="text-h6 text-medium-emphasis mt-2">
                   Unlock the future with AI-powered research insights
                 </p>
@@ -39,6 +39,7 @@
 import { onMounted } from 'vue'
 import { useUIStore } from '@/stores/ui.store'
 import ThreeBackground from '@/components/ThreeBackground.vue'
+import AppLogo from '@/components/AppLogo.vue'
 
 const uiStore = useUIStore()
 
@@ -48,13 +49,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.auth-background {
-  background-color: #808080 !important;
+.auth-page-container {
   min-height: 100vh;
   color: black;
 }
 
 .text-medium-emphasis {
   color: #666666 !important;
+}
+
+.transparent-bg {
+  background: transparent !important;
 }
 </style>

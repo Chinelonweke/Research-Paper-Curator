@@ -5,7 +5,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.database.connection import engine
 from src.database.models import Base
-from src.api import routes, auth_routes
+from src.api import routes, auth_routes, collections_routes, analytics_routes
+from src.core.logging_config import app_logger as logger
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -15,6 +16,7 @@ app = FastAPI(
     description="RAG-powered research paper discovery with authentication and analytics",
     version="2.0.0"
 )
+logger.info("✓ API app initialized")
 
 # CORS
 app.add_middleware(
@@ -45,3 +47,5 @@ async def health():
 # Include routers with /api prefix
 app.include_router(auth_routes.router)
 app.include_router(routes.router, prefix="/api")
+app.include_router(collections_routes.router, prefix="/api")
+app.include_router(analytics_routes.router, prefix="/api")

@@ -1,85 +1,89 @@
 <template>
-  <div class="landing-hero">
-    <div class="pen-bg">
-      <span class="pen" style="left:8%; top:18%; --rot:-20deg; --dur:9s; animation-delay:0s"></span>
-      <span class="pen" style="left:25%; top:8%; --rot:10deg; --dur:7.5s; animation-delay:-2s"></span>
-      <span class="pen" style="left:45%; top:22%; --rot:-10deg; --dur:8.5s; animation-delay:-1s"></span>
-      <span class="pen" style="left:62%; top:12%; --rot:15deg; --dur:10s; animation-delay:-3s"></span>
-      <span class="pen" style="left:78%; top:25%; --rot:-5deg; --dur:9.5s; animation-delay:-1.5s"></span>
-    </div>
+  <div class="landing-page transparent-bg">
+    <ThreeBackground />
+    
+    <v-container class="fill-height justify-center align-center relative" style="z-index: 1">
+      <v-row justify="center">
+        <v-col cols="12" sm="10" md="8" lg="7">
+          <v-card class="glass-panel rounded-xl pa-8 pa-md-12 text-center border-0 shadow-hero" elevation="0">
+            <!-- Logo Section -->
+            <div class="mb-8">
+              <AppLogo size="120" class="mb-6 mx-auto" />
+              <h1 class="text-h3 text-md-h2 font-weight-black text-black tracking-tighter mb-4">
+                Research Paper Curator
+              </h1>
+              <p class="text-h6 text-medium-emphasis tracking-tight max-w-xl mx-auto">
+                Unlock the future of discovery with AI-powered research curation and insights.
+              </p>
+            </div>
 
-    <div class="landing-card glass-panel">
-      <v-icon size="72" color="black">mdi-book-open-page-variant</v-icon>
-      <h1 class="text-h2 font-weight-bold mt-4">Research Paper Curator</h1>
-      <p class="text-h6 text-medium-emphasis mb-6">Unlock AI-powered research insights</p>
+            <v-divider class="my-10 opacity-10" />
 
-      <div class="d-flex justify-center gap-4">
-        <v-btn :to="{ name: 'login' }" color="black" variant="text">Login</v-btn>
-        <v-btn :to="{ name: 'register' }" color="black" variant="outlined">Register</v-btn>
-      </div>
-    </div>
+            <!-- Action Buttons -->
+            <div class="d-flex flex-column flex-sm-row justify-center align-center gap-4">
+              <v-btn
+                :to="{ name: 'login' }"
+                variant="text"
+                color="black"
+                size="x-large"
+                class="px-10 font-weight-bold"
+              >
+                Sign In
+              </v-btn>
+              <v-btn
+                :to="{ name: 'register' }"
+                color="black"
+                variant="flat"
+                size="x-large"
+                rounded="pill"
+                class="px-12 font-weight-bold shadow-lg"
+              >
+                Get Started
+                <v-icon end>mdi-arrow-right</v-icon>
+              </v-btn>
+            </div>
+
+            <!-- Footer-ish info -->
+            <div class="mt-12 text-caption text-medium-emphasis font-weight-medium text-uppercase tracking-widest">
+              Accelerating Insight &bull; AI Curation &bull; Knowledge Hub
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script setup lang="ts">
-// Simple landing page used for unauthenticated access
+import ThreeBackground from '@/components/ThreeBackground.vue'
+import AppLogo from '@/components/AppLogo.vue'
 </script>
 
 <style scoped>
-.landing-hero {
-  background-color: #808080;
+.landing-page {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 1rem;
   position: relative;
   overflow: hidden;
+  display: flex;
 }
 
-.pen-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+.relative {
+  position: relative;
 }
 
-.pen {
-  position: absolute;
-  width: 140px;
-  height: 32px;
-  background-repeat: no-repeat;
-  background-size: contain;
-  opacity: 0.12;
-  transform-origin: center;
-  /* simple pen-shaped SVG as background */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 16'><rect x='0' y='4' width='48' height='8' rx='2' fill='%23000'/><rect x='48' y='0' width='12' height='16' rx='2' fill='%23333'/></svg>");
-  animation: float var(--dur,8s) linear infinite;
+.max-w-xl {
+  max-width: 32rem;
 }
 
-@keyframes float {
-  0% { transform: translateY(0) rotate(var(--rot,0deg)); opacity: 0.06; }
-  25% { transform: translateY(-18px) rotate(calc(var(--rot, 0deg) + 4deg)); opacity: 0.12; }
-  50% { transform: translateY(-36px) rotate(calc(var(--rot, 0deg) - 6deg)); opacity: 0.16; }
-  75% { transform: translateY(-18px) rotate(calc(var(--rot, 0deg) + 2deg)); opacity: 0.12; }
-  100% { transform: translateY(0) rotate(var(--rot,0deg)); opacity: 0.06; }
+.tracking-tighter {
+  letter-spacing: -0.05em !important;
 }
 
-.landing-card {
-  max-width: 820px;
-  width: 100%;
-  padding: 2.5rem;
-  border-radius: 10px;
-  text-align: center;
-  z-index: 1;
-  /* make sure text inside is black */
-  color: black !important;
+.tracking-widest {
+  letter-spacing: 0.2em !important;
 }
 
-.landing-card, .landing-card * {
-  color: black !important;
-}
-
-.landing-card .text-medium-emphasis {
-  color: #444444 !important;
+.shadow-hero {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
 }
 </style>

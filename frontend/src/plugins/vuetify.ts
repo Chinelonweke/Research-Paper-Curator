@@ -7,9 +7,9 @@ import * as directives from 'vuetify/directives'
 const lightTheme: ThemeDefinition = {
   dark: false,
   colors: {
-    primary: '#667eea',
-    secondary: '#764ba2',
-    accent: '#8b5cf6',
+    primary: '#000000',
+    secondary: '#333333',
+    accent: '#1a1a1a',
     error: '#ef4444',
     warning: '#f59e0b',
     info: '#3b82f6',
@@ -22,9 +22,9 @@ const lightTheme: ThemeDefinition = {
 const darkTheme: ThemeDefinition = {
   dark: true,
   colors: {
-    primary: '#818cf8',
-    secondary: '#a78bfa',
-    accent: '#c4b5fd',
+    primary: '#ffffff',
+    secondary: '#cccccc',
+    accent: '#eeeeee',
     error: '#f87171',
     warning: '#fbbf24',
     info: '#60a5fa',

@@ -1,18 +1,18 @@
 <template>
-  <div>
-    <v-row class="mb-6">
-      <v-col cols="12">
-        <h1 class="text-h4 mb-4">
-          <v-icon class="mr-2">mdi-magnify</v-icon>
+  <v-container fluid class="pa-0">
+    <v-row class="mb-8 p-4">
+      <v-col cols="12" class="glass-panel rounded-xl pa-6">
+        <h1 class="text-h4 font-weight-bold d-flex align-center">
+          <v-icon class="mr-3" color="black">mdi-magnify</v-icon>
           Search Papers
         </h1>
       </v-col>
     </v-row>
 
     <!-- Search Form -->
-    <v-row class="mb-6">
+    <v-row class="mb-8 px-4">
       <v-col cols="12">
-        <v-card>
+        <v-card class="glass-panel rounded-xl border-0 pa-4 shadow-sm">
           <v-card-text>
             <v-row>
               <v-col cols="12" md="8">
@@ -22,8 +22,11 @@
                   placeholder="e.g., transformers, attention mechanism, GPT"
                   prepend-inner-icon="mdi-magnify"
                   :loading="papersStore.loading"
+                  variant="plain"
+                  class="text-h6"
                   @keyup.enter="handleSearch"
                   clearable
+                  hide-details
                 />
               </v-col>
               <v-col cols="12" md="4">
@@ -33,37 +36,51 @@
                   :items="searchTypes"
                   item-title="label"
                   item-value="value"
+                  variant="plain"
+                  density="compact"
+                  hide-details
+                  class="pt-0"
                 />
               </v-col>
             </v-row>
 
-            <v-row>
-              <v-col cols="12" md="4">
-                <v-slider
-                  v-model="limit"
-                  label="Results"
-                  :min="5"
-                  :max="50"
-                  :step="5"
-                  thumb-label
-                />
+            <v-divider class="my-6 opacity-10" />
+
+            <v-row align="center">
+              <v-col cols="12" md="6">
+                <div class="d-flex align-center">
+                  <span class="text-caption font-weight-bold mr-4 text-uppercase">Limit Results</span>
+                  <v-slider
+                    v-model="limit"
+                    :min="5"
+                    :max="50"
+                    :step="5"
+                    thumb-label
+                    hide-details
+                    color="black"
+                  />
+                  <span class="ml-4 font-weight-bold">{{ limit }}</span>
+                </div>
               </v-col>
-              <v-col cols="12" md="8" class="d-flex align-center">
+              <v-col cols="12" md="6" class="d-flex align-center justify-end">
                 <v-btn
-                  color="primary"
+                  variant="text"
+                  class="mr-4 font-weight-bold"
+                  color="grey-darken-1"
+                  @click="clearSearch"
+                >
+                  Clear Fields
+                </v-btn>
+                <v-btn
+                  color="black"
                   size="large"
+                  rounded="pill"
+                  class="px-8 font-weight-bold"
                   :loading="papersStore.loading"
                   @click="handleSearch"
                 >
                   <v-icon start>mdi-magnify</v-icon>
-                  Search
-                </v-btn>
-                <v-btn
-                  variant="text"
-                  class="ml-2"
-                  @click="clearSearch"
-                >
-                  Clear
+                  Search Library
                 </v-btn>
               </v-col>
             </v-row>
@@ -125,7 +142,7 @@
         </p>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script setup lang="ts">

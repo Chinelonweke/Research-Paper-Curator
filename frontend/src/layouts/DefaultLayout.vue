@@ -1,5 +1,6 @@
 <template>
   <v-layout>
+    <ThreeBackground />
     <!-- App Bar -->
     <v-app-bar class="glass-panel" flat>
       <v-app-bar-nav-icon
@@ -9,7 +10,7 @@
 
       <v-app-bar-title>
         <router-link to="/" class="text-black text-decoration-none d-flex align-center font-weight-bold">
-          <v-icon class="mr-2 text-black">mdi-book-open-page-variant</v-icon>
+          <AppLogo class="mr-3" size="28" />
           Research Paper Curator
         </router-link>
       </v-app-bar-title>
@@ -48,8 +49,8 @@
         <v-menu>
           <template #activator="{ props }">
             <v-btn icon v-bind="props" class="text-black">
-              <v-avatar color="grey-lighten-2" size="36">
-                <span class="text-h6 text-black">{{ userInitial }}</span>
+              <v-avatar color="black" variant="tonal" size="36">
+                <span class="text-h6 font-weight-bold">{{ userInitial }}</span>
               </v-avatar>
             </v-btn>
           </template>
@@ -108,7 +109,7 @@
     </v-navigation-drawer>
 
     <!-- Main Content -->
-    <v-main>
+    <v-main class="transparent-bg">
       <v-container fluid class="pa-4 pa-md-6">
         <router-view />
       </v-container>
@@ -128,6 +129,8 @@ import { computed, onMounted } from 'vue'
 import { useUIStore } from '@/stores/ui.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { useRouter } from 'vue-router'
+import ThreeBackground from '@/components/ThreeBackground.vue'
+import AppLogo from '@/components/AppLogo.vue'
 
 const uiStore = useUIStore()
 const authStore = useAuthStore()
@@ -168,3 +171,9 @@ onMounted(() => {
   uiStore.initTheme()
 })
 </script>
+
+<style scoped>
+.transparent-bg {
+  background: transparent !important;
+}
+</style>

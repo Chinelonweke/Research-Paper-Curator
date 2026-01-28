@@ -8,6 +8,7 @@ from typing import List, Optional
 import logging
 from datetime import datetime
 import hashlib
+import re
 
 from src.database.connection import get_db
 from src.database.models import Paper, PaperChunk, User
@@ -185,6 +186,43 @@ async def ask_question(
 
         if not question:
             raise HTTPException(status_code=400, detail="No question provided")
+
+        question_lower = question.lower()
+        if "abstract" in question_lower:
+            title_hint = None
+            quoted = re.findall(r'"([^"]+)"|\'([^\']+)\'', question)
+            if quoted:
+                title_hint = next((q[0] or q[1] for q in quoted if q[0] or q[1]), None)
+            if not title_hint and ";" in question:
+                title_hint = question.split(";")[-1].strip()
+            if not title_hint:
+                match = re.search(r"paper[:\-]\s*(.+)$", question, re.IGNORECASE)
+                if match:
+                    title_hint = match.group(1).strip()
+
+            if title_hint:
+                from sqlalchemy import and_
+                words = [w for w in re.split(r"\s+", title_hint) if len(w) > 2]
+                filters = [Paper.title.ilike(f"%{w}%") for w in words[:6]] if words else []
+                title_query = db.query(Paper)
+                if filters:
+                    title_query = title_query.filter(and_(*filters))
+                else:
+                    title_query = title_query.filter(Paper.title.ilike(f"%{title_hint}%"))
+
+                paper = title_query.order_by(Paper.published_date.desc()).first()
+                if paper and paper.abstract:
+                    answer = (
+                        "## Abstract\n\n"
+                        f"{paper.abstract}\n\n"
+                        f"**Paper:** {paper.title}"
+                    )
+                    return {
+                        "answer": answer,
+                        "sources": [f"{paper.title} - {paper.pdf_url or ''}"],
+                        "audio_url": None,
+                        "rag_mode": False
+                    }
 
         logger.info(f"🤖 RAG Question: {question[:50]}...")
 
@@ -405,4 +443,3 @@ async def get_indexing_status(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Status error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-

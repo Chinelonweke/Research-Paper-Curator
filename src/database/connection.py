@@ -10,9 +10,12 @@ import os
 
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    logger.error("❌ DATABASE_URL not set in environment!")
+    # Use a dummy URL for build-time safety if needed, or raise
+    DATABASE_URL = "postgresql://user:pass@localhost/dbname" 
 
 engine = create_engine(
     DATABASE_URL,

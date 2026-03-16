@@ -1,4 +1,4 @@
-﻿"""
+"""
 AI Answer Generator using Groq
 """
 import os
@@ -16,8 +16,8 @@ class AnswerGenerator:
             raise ValueError("GROQ_API_KEY not found in environment")
         
         self.client = Groq(api_key=api_key)
-        self.model = "llama-3.1-70b-versatile"  # Fast and smart
-        logger.info("✅ Groq AI Answer Generator initialized")
+        self.model = "llama-3.3-70b-versatile"  # Fast and smart
+        logger.info("? Groq AI Answer Generator initialized")
     
     def generate_answer(self, question: str, papers: list) -> str:
         """
@@ -61,7 +61,7 @@ DO NOT just summarize papers. Create an original, educational explanation that h
 Answer in markdown format."""
 
             # Call Groq
-            logger.info("🤖 Generating AI answer...")
+            logger.info("?? Generating AI answer...")
             
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -72,12 +72,12 @@ Answer in markdown format."""
             
             answer = response.choices[0].message.content
             
-            logger.info(f"✅ Generated {len(answer)} char answer")
+            logger.info(f"? Generated {len(answer)} char answer")
             
             return answer
             
         except Exception as e:
-            logger.error(f"❌ Answer generation failed: {e}")
+            logger.error(f"? Answer generation failed: {e}")
             raise
 
 # Global instance

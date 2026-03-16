@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY src/ ./src/
-COPY .env.example .env
+
 
 # Create audio directory
 RUN mkdir -p /tmp/audio && chmod 777 /tmp/audio

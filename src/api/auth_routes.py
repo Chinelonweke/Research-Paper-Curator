@@ -6,7 +6,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from datetime import timedelta
-
+from typing import Optional
+from src.core.logging_config import app_logger as logger
 from src.database.connection import get_db
 from src.database.models import User
 from src.services.auth import (
@@ -23,13 +24,13 @@ class UserCreate(BaseModel):
     email: EmailStr
     username: str
     password: str
-    full_name: str = None
+    full_name: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: int
     email: str
     username: str
-    full_name: str = None
+    full_name: Optional[str] = None
     is_active: bool
 
 class Token(BaseModel):
@@ -39,12 +40,15 @@ class Token(BaseModel):
 
 @router.post("/register", response_model=UserResponse)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
+    logger.info(f"➡ Registration request for: {user_data.email}")
     # Check if email exists
     if db.query(User).filter(User.email == user_data.email).first():
+        logger.warning(f"❌ Registration failed: Email {user_data.email} already exists")
         raise HTTPException(status_code=400, detail="Email already registered")
     
     # Check if username exists
     if db.query(User).filter(User.username == user_data.username).first():
+        logger.warning(f"❌ Registration failed: Username {user_data.username} taken")
         raise HTTPException(status_code=400, detail="Username already taken")
     
     # Create user
@@ -61,13 +65,16 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    
+
+    logger.info(f"✅ User registered: {user_data.email}")
     return new_user
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    logger.info(f"➡ Login attempt for: {form_data.username}")
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
+        logger.warning(f"❌ Login failed for: {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"

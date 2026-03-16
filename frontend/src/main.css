@@ -1,0 +1,144 @@
+/* Global Background */
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.v-application {
+  background: transparent !important;
+}
+
+/* Glassmorphism Panel Utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07) !important;
+  transition: all 0.3s ease;
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15) !important;
+}
+
+/* Ensure text readability on glass */
+.text-glass-primary {
+  color: #1a1a1a !important;
+}
+
+.text-glass-secondary {
+  color: #4a4a4a !important;
+}
+
+/* Overrides for Vuetify Components in Glass Context */
+.v-card.glass-panel {
+  background-color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.v-app-bar.glass-panel {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Force auth pages to use dark text over glass background */
+.auth-background,
+.auth-background h1,
+.auth-background h2,
+.auth-background h3,
+.auth-background h4,
+.auth-background h5,
+.auth-background h6,
+.auth-background p,
+.auth-background span,
+.auth-background div:not(.v-btn__content) {
+  color: #000000 !important;
+}
+
+/* Ensure all icons in auth background are black */
+.auth-background .v-icon {
+  color: #000000 !important;
+}
+
+/* But make primary/submit button labels white for contrast */
+.auth-background .v-btn {
+  /* Default buttons (like text buttons) should be black */
+  color: #000000 !important;
+}
+
+/* Only make block submit buttons use white labels for contrast */
+.auth-background .v-btn.v-btn--block,
+.auth-background .v-btn.v-btn--block .v-btn__content {
+  color: #ffffff !important;
+}
+
+.auth-background .text-medium-emphasis {
+  color: #000000 !important;
+}
+
+/* Ensure alerts on auth pages use black text for readability on light backgrounds */
+.auth-background .v-alert,
+.auth-background .v-alert * {
+  color: #000000 !important;
+}
+
+.auth-background .v-alert .v-alert__title {
+  color: #fff !important;
+}
+
+/* Validation and helper text inside auth forms should be black */
+.auth-background .v-messages,
+.auth-background .v-messages__message {
+  color: #1a1a1a !important;
+}
+
+.auth-background .v-field .v-field__messages {
+  color: #1a1a1a !important;
+}
+
+/* Inputs (labels, icons) should remain black on auth pages */
+.auth-background .v-field .v-field__label,
+.auth-background .v-field .v-field__outline,
+.auth-background .v-text-field .v-field__prepend-inner,
+.auth-background .v-text-field .v-field__append-inner {
+  color: #000000 !important;
+}
+
+/* Ensure outline and invalid states keep red borders but labels stay black */
+.auth-background .v-field.v-field--error .v-field__label,
+.auth-background .v-field.v-field--error .v-messages__message {
+  color: #ef4444 !important;
+}
+
+/* Force input and textarea content to be black on auth pages */
+.auth-background .v-field__input,
+.auth-background input,
+.auth-background textarea {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  opacity: 1 !important;
+}
+
+/* Ensure placeholder text is readable but slightly dimmer */
+.auth-background .v-field__input::placeholder,
+.auth-background input::placeholder {
+  color: rgba(0, 0, 0, 0.6) !important;
+  -webkit-text-fill-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Landing page grey background */
+.landing-background {
+  background-color: #808080 !important;
+  color: #000 !important;
+}
+
+.landing-background .text-medium-emphasis {
+  color: #444444 !important;
+}

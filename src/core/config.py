@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     
     # Logging - THIS WAS MISSING!
     log_level: str = "INFO"
+
+    # JWT Authentication - ADD THESE THREE FIELDS
+    secret_key: str = "default-secret-key-change-in-production"
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
     
     # LLM
     openai_api_key: Optional[str] = None
